@@ -1,4 +1,5 @@
-import createShipObject from './src/shipFactory';
+import createShipObject from './src/shipFactory.js';
+import createGameboard from './src/gameboardFactory.js';
 
 describe('ship factory', () => {
   let ship;
@@ -27,3 +28,46 @@ describe('ship factory', () => {
   });
 });
 
+describe('gameboard placeShip method', () => {
+  let board;
+
+  beforeEach(() => {
+    board = createGameboard();
+  });
+
+  it('should not place a ship out of the 10x10 grid horizontally', () => {
+    const ship = createShipObject(4, 'destroyer');
+    board.placeShip(ship, 0, 7, 'horizontal');
+    const isShipOutOfGrid = board.grid.some((row) =>
+      row.slice(10).some((cell) => cell === ship.name)
+    );
+    expect(isShipOutOfGrid).toBe(false);
+  });
+
+  it('should not place a ship out of the 10x10 grid vertically', () => {
+    const ship = createShipObject(4, 'destroyer');
+    board.placeShip(ship, 7, 0, 'vertical');
+    const isShipOutOfGrid = board.grid
+      .slice(10)
+      .some((row) => row.some((cell) => cell === ship.name));
+    expect(isShipOutOfGrid).toBe(false);
+  });
+
+  it('should not allow placement of a new ship overlapping with other ships or their surrounding tiles horizontally', () => {
+    const ship1 = createShipObject(4, 'destroyer');
+    board.placeShip(ship1, 5, 5, 'horizontal');
+    const ship2 = createShipObject(3, 'submarine');
+    const placementAllowed = board.placeShip(ship2, 5, 4, 'horizontal');
+
+    expect(placementAllowed).toBe(null);
+  });
+
+  it('should not allow placement of a new ship overlapping with other ships or their surrounding tiles vertically', () => {
+    const ship1 = createShipObject(4, 'destroyer');
+    board.placeShip(ship1, 5, 5, 'vertical');
+    const ship2 = createShipObject(3, 'submarine');
+    const placementAllowed = board.placeShip(ship2, 4, 5, 'vertical');
+
+    expect(placementAllowed).toBe(null);
+  });
+});

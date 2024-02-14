@@ -1,14 +1,16 @@
-const createShipObject = (length) => {
-  function buildShip(number) {
+const createShipObject = (length, name) => {
+  function buildShip(number, shipName) {
     return {
+      name: shipName,
       length: number,
       hits: 0,
     };
   }
 
-  const vessel = buildShip(length);
+  const vessel = buildShip(length, name);
 
   const ship = {
+    name: vessel.name,
     length: vessel.length,
 
     timesHit: vessel.hits,
