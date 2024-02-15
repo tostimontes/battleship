@@ -1,0 +1,86 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* border: 1px solid black; */
+}
+
+:root {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30rem;
+  height: 20rem;
+  > form {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+#title {
+  margin-top: 2rem;
+  width: 100%;
+  height: 10%;
+  text-align: center;
+}
+
+#gameboards {
+  display: flex;
+  width: 100%;
+  height: 90%;
+}
+
+.gameboard-divs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 50%;
+  height: 100%;
+}
+
+.board-and-deck-container {
+  width: 100%;
+  height: 75%;
+  display: flex;
+  flex-direction: column;
+}
+
+.gameboard-grid {
+  display: grid;
+  grid-template: repeat(11, minmax(25px, 1fr)) / repeat(11, minmax(25px, 1fr));
+  gap: 1px;
+  /* background-color: black; */
+  width: 80%;
+  height: 100%;
+}
+
+.label {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background-color: white;
+}
+
+.tile {
+  width: 100%;
+  height: 100%;
+  background-color: navy;
+}

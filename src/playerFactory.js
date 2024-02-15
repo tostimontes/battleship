@@ -1,2 +1,23 @@
-// UI lets choose 1 or 2 player
-// if 1 player second player AI
+import createGameboard from './gameboardFactory.js';
+
+async function createPlayer(name = 'AI', number = 1) {
+  if (name === 'AI') {
+    // TODO: shouldn't aim at disabled tiles
+    // TODO: if hit registered, create algorithm to play intelligently, it should first aim at either vertical or horizontal
+  }
+
+  const player = {
+    name,
+    number,
+    board: createGameboard(),
+    attack(xCoord, yCoord) {
+      if (onAttack) {
+        onAttack(number, xCoord, yCoord);
+      }
+    },
+  };
+
+  return player;
+}
+
+export default createPlayer;

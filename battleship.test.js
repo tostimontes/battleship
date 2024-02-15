@@ -1,5 +1,6 @@
 import createShipObject from './src/shipFactory.js';
 import createGameboard from './src/gameboardFactory.js';
+import createPlayer from './src/playerFactory.js';
 
 describe('ship factory', () => {
   let ship;
@@ -181,3 +182,5 @@ describe('gameboard anyShipRemains method', () => {
     expect(board.anyShipRemains()).toBe(false);
   });
 });
+
+describe('game', () => {});

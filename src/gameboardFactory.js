@@ -164,13 +164,14 @@ const createGameboard = () => {
         for (const ship in this.fleet) {
           if (ship === hitShipName) {
             this.fleet[ship].hit();
-            this.anyShipRemains();
+            // this.anyShipRemains();
             break;
           }
         }
-      } else {
-        grid[xCoord][yCoord] = 'missed';
+        return 'hit';
       }
+      grid[xCoord][yCoord] = 'missed';
+      return 'missed';
     },
 
     anyShipRemains() {
@@ -184,6 +185,5 @@ const createGameboard = () => {
   };
   return board;
 };
-
 
 export default createGameboard;
