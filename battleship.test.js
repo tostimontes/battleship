@@ -71,3 +71,22 @@ describe('gameboard placeShip method', () => {
     expect(placementAllowed).toBe(null);
   });
 });
+
+describe('gameboard receiveAttack method', () => {
+  let board;
+
+  beforeEach(() => {
+    board = createGameboard();
+    board.placeShip(board.fleet.cruiser, 2, 2, 'horizontal');
+  });
+
+  it('should not register a hit when no ship is at the coordinates', () => {
+    board.receiveAttack(0, 0);
+    expect(board.grid[0][0]).toBe('missed');
+  });
+
+  it('should mark the cruiser as hit if the cruiser is at the coordinates', () => {
+    board.receiveAttack(2, 3);
+    expect(board.fleet.cruiser.timesHit).toBe(1);
+  });
+});

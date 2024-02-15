@@ -7,19 +7,17 @@ import createShipObject from './shipFactory.js';
 const createGameboard = () => {
   // 10x10 matrix with rows A-J and columns 1-10 leave letter mapping for UI
   const grid = [...Array(10).keys()].map(() => [...Array(10)]);
-  const carrier = createShipObject(5, 'carrier');
-  const battleship = createShipObject(4, 'battleship');
-  const cruiser = createShipObject(3, 'cruiser');
-  const submarine = createShipObject(3, 'submarine');
-  const destroyer = createShipObject(2, 'destroyer');
+  const fleet = {
+    carrier: createShipObject(5, 'carrier'),
+    battleship: createShipObject(4, 'battleship'),
+    cruiser: createShipObject(3, 'cruiser'),
+    submarine: createShipObject(3, 'submarine'),
+    destroyer: createShipObject(2, 'destroyer'),
+  };
 
   const board = {
     grid,
-    carrier,
-    battleship,
-    cruiser,
-    submarine,
-    destroyer,
+    fleet,
 
     placeShip(ship, xCoord, yCoord, orientation) {
       const selectedCoords = [];
@@ -38,113 +36,123 @@ const createGameboard = () => {
       }
 
       selectedCoords.forEach((coords, index) => {
-        const coordPair = [parseInt(coords[0]), parseInt(coords[1])];
-        grid[coordPair[0]][coordPair[1]] = ship.name;
+        const row = parseInt(coords[0]);
+        const column = parseInt(coords[1]);
+        grid[row][column] = ship.name;
         if (orientation === 'horizontal') {
           // Horizontal disable
           if (index === 0) {
-            switch (coordPair) {
-              case coordPair[0] === 0 && coordPair[1] === 0:
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
+            switch ((row, column)) {
+              case row === 0 && column === 0:
+                grid[row + 1][column] = 'disabled';
                 break;
 
-              case coordPair[0] === 9 && coordPair[1] === 0:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
+              case row === 9 && column === 0:
+                grid[row - 1][column] = 'disabled';
                 break;
 
-              case coordPair[1] === 0:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
+              case column === 0:
+                grid[row - 1][column] = 'disabled';
+                grid[row + 1][column] = 'disabled';
                 break;
 
               default:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1] - 1] = 'disabled';
+                grid[row - 1][column] = 'disabled';
+                grid[row + 1][column] = 'disabled';
+                grid[row][column - 1] = 'disabled';
+                grid[row - 1][column - 1] = 'disabled';
+                grid[row + 1][column - 1] = 'disabled';
                 break;
             }
           } else if (index === selectedCoords.length - 1) {
-            switch (coordPair) {
-              case coordPair[0] === 0 && coordPair[1] === 9:
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
+            switch ((row, column)) {
+              case row === 0 && column === 9:
+                grid[row + 1][column] = 'disabled';
                 break;
 
-              case coordPair[0] === 9 && coordPair[1] === 9:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
+              case row === 9 && column === 9:
+                grid[row - 1][column] = 'disabled';
                 break;
 
-              case coordPair[1] === 9:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
+              case column === 9:
+                grid[row - 1][column] = 'disabled';
+                grid[row + 1][column] = 'disabled';
                 break;
 
               default:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1] + 1] = 'disabled';
+                grid[row - 1][column] = 'disabled';
+                grid[row + 1][column] = 'disabled';
+                grid[row][column + 1] = 'disabled';
+                grid[row - 1][column + 1] = 'disabled';
+                grid[row + 1][column + 1] = 'disabled';
                 break;
             }
           } else {
-            grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-            grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
+            grid[row - 1][column] = 'disabled';
+            grid[row + 1][column] = 'disabled';
           }
         } else {
           // Vertical disable
           if (index === 0) {
-            switch (coordPair) {
-              case coordPair[0] === 0 && coordPair[1] === 0:
-                grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
+            switch ((row, column)) {
+              case row === 0 && column === 0:
+                grid[row][column + 1] = 'disabled';
                 break;
 
-              case coordPair[1] === 0:
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1] + 1] = 'disabled';
+              case column === 0:
+                grid[row - 1][column] = 'disabled';
+                grid[row][column + 1] = 'disabled';
+                grid[row - 1][column + 1] = 'disabled';
                 break;
 
               default:
-                grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] - 1][coordPair[1] - 1] = 'disabled';
+                grid[row][column - 1] = 'disabled';
+                grid[row][column + 1] = 'disabled';
+                grid[row - 1][column] = 'disabled';
+                grid[row - 1][column + 1] = 'disabled';
+                grid[row - 1][column - 1] = 'disabled';
                 break;
             }
           } else if (index === selectedCoords.length - 1) {
-            switch (coordPair) {
-              case coordPair[0] === 9 && coordPair[1] === 9:
-                grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
+            switch ((row, column)) {
+              case row === 9 && column === 9:
+                grid[row][column - 1] = 'disabled';
                 break;
 
-              case coordPair[1] === 9:
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1] - 1] = 'disabled';
+              case column === 9:
+                grid[row + 1][column] = 'disabled';
+                grid[row][column - 1] = 'disabled';
+                grid[row + 1][column - 1] = 'disabled';
                 break;
 
               default:
-                grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1]] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1] - 1] = 'disabled';
-                grid[coordPair[0] + 1][coordPair[1] + 1] = 'disabled';
+                grid[row][column - 1] = 'disabled';
+                grid[row][column + 1] = 'disabled';
+                grid[row + 1][column] = 'disabled';
+                grid[row + 1][column - 1] = 'disabled';
+                grid[row + 1][column + 1] = 'disabled';
                 break;
             }
           } else {
-            grid[coordPair[0]][coordPair[1] - 1] = 'disabled';
-            grid[coordPair[0]][coordPair[1] + 1] = 'disabled';
+            grid[row][column - 1] = 'disabled';
+            grid[row][column + 1] = 'disabled';
           }
         }
       });
     },
 
     receiveAttack(xCoord, yCoord) {
-      // check hit;
-      // send hit function to correct ship || record missed shot coords
+      if (grid[xCoord][yCoord] && grid[xCoord][yCoord] !== 'disabled') {
+        const hitShipName = grid[xCoord][yCoord];
+        for (const ship in this.fleet) {
+          if (ship === hitShipName) {
+            this.fleet[ship].hit();
+            break;
+          }
+        }
+      } else {
+        grid[xCoord][yCoord] = 'missed';
+      }
     },
 
     anyShipRemains() {
@@ -154,8 +162,13 @@ const createGameboard = () => {
   return board;
 };
 const player1board = createGameboard();
-player1board.placeShip(player1board.battleship, 0, 7, 'horizontal');
-player1board.placeShip(player1board.carrier, 4, 3, 'horizontal');
+player1board.placeShip(player1board.fleet.battleship, 0, 7, 'horizontal');
+player1board.placeShip(player1board.fleet.carrier, 4, 3, 'horizontal');
+player1board.receiveAttack(4, 4);
+player1board.receiveAttack(4, 5);
+player1board.receiveAttack(4, 7);
+player1board.receiveAttack(4, 6);
+player1board.fleet.carrier.isSunk();
 console.log(player1board.grid);
 
 export default createGameboard;

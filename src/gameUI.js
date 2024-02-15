@@ -1,0 +1,1 @@
+// TODO: generate pixelated animations for water, fire/shipwreck, each ship
