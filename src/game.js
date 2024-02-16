@@ -21,12 +21,11 @@ function gameLogic() {
     nextTurn() {
       if (turn === 1) {
         turn = 2;
-      } else {
-        turn = 1;
+        return 2;
       }
+      turn = 1;
+      return 1;
     },
-
-    // TODO: method that after a hit checks if ship is sunk to return sunk and update the UI
 
     checkWin(player) {
       if (player === 1) {

@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    app: './src/game.js',
+    app: './src/controller.js',
   },
   plugins: [
     new HtmlWebpackPlugin({

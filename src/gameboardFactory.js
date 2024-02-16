@@ -168,10 +168,10 @@ const createGameboard = () => {
             break;
           }
         }
-        return 'hit';
+        return { message: 'hit', ship: hitShipName };
       }
       grid[xCoord][yCoord] = 'missed';
-      return 'missed';
+      return { message: 'missed' };
     },
 
     anyShipRemains() {

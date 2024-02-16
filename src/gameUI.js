@@ -1,7 +1,7 @@
-// TODO: generate pixelated animations for water, fire/shipwreck, each ship
-import createPlayer from './playerFactory.js';
 import './style.css';
+// TODO: generate pixelated animations for water, fire/shipwreck, each ship
 // * Implement 3 AI levels, random
+// TODO: add rejects and error handling to Promises
 
 function mapTileToCoordinates(tile) {
   const letterToNumber = {
@@ -28,6 +28,21 @@ function mapCoordinatesToTile(row, column) {
 }
 
 function setGameUI() {
+  // * querySelector as properties + DOM manipulation as methods
+  const player1Div = document.querySelector('#player1div');
+  const player2Div = document.querySelector('#player2div');
+  const player1grid = document
+    .querySelector('#player1grid')
+    .querySelectorAll('.tile');
+  const player2grid = document
+    .querySelector('#player2grid')
+    .querySelectorAll('.tile');
+  const playerModeDialog = document.querySelector('#player-mode-dialog');
+  const player1Selection = document.querySelector('#player1-name-dialog');
+  const player2Selection = document.querySelector('#player2-name-dialog');
+  const player1Fleet = document.querySelector('#player1fleet');
+  const player2Fleet = document.querySelector('#player2fleet');
+
   const gameUI = {
     updateBoard(player, xCoord, yCoord, result) {
       if (player === 1) {
@@ -40,82 +55,87 @@ function setGameUI() {
           .classList.add(result);
       }
     },
-  };
-  return gameUI;
-}
-const playerModeDialog = document.querySelector('#player-mode-dialog');
-const player1Selection = document.querySelector('#player1-name-dialog');
-const player2Selection = document.querySelector('#player2-name-dialog');
-let playerMode;
-let player1;
-let player2;
-const turn = 1;
-
-// * Player selection on page load
-document.addEventListener('DOMContentLoaded', () => {
-  // Player creation
-  // TODO: add form validation
-
-  playerModeDialog.showModal();
-  playerModeDialog.querySelector('button').addEventListener('click', () => {
-    if (playerModeDialog.querySelector('input[value="single"]').checked) {
-      playerMode = 'single';
-    } else {
-      playerMode = 'two';
-    }
-    playerModeDialog.close();
-    player1Selection.showModal();
-  });
-
-  // Create player 1
-  player1Selection.querySelector('button').addEventListener('click', () => {
-    const player1Name = player1Selection.querySelector('input').value;
-    player1 = createPlayer(player1Name, 1);
-    const player1Div = document.querySelector('#player1div');
-    player1Div.querySelector('h2').textContent = player1.name;
-    const player2tiles = Array.from(
-      document.querySelector('#player2grid').querySelectorAll('.tile')
-    );
-    // Add attack listeners to player 2 board
-    player2tiles.forEach((tile) => {
-      const gridCoords = mapTileToCoordinates(tile);
-      tile.addEventListener('click', () => {
-        player1.attack(gridCoords[0], gridCoords[1]);
+    promptPlayerToPlay(player) {
+      if (player === 1) {
+        player1message.textContent = `Player 1, it's your turn`;
+      } else {
+        player2message.textContent = `Player 2, it's your turn`;
+      }
+    },
+    getPlayerMode(mode) {},
+    getPlayerName(player, name) {},
+    displayModeSelection() {
+      return new Promise((resolve) => {
+        document.addEventListener('DOMContentLoaded', () => {
+          // Player creation
+          // TODO: add form validation
+          let playerMode;
+          playerModeDialog.showModal();
+          playerModeDialog
+            .querySelector('button')
+            .addEventListener('click', () => {
+              if (
+                playerModeDialog.querySelector('input[value="single"]').checked
+              ) {
+                playerMode = 'single';
+              } else {
+                playerMode = 'two';
+              }
+              playerModeDialog.close();
+              resolve(playerMode);
+            });
+        });
       });
-    });
+    },
 
-    player1Selection.close();
-    // Create AI if single player
-    if (playerMode === 'single') {
-      player2 = createPlayer('AI', 2);
-    } else {
-      player2Selection.showModal();
-    }
-    // Create player 2 if two players
-    if (player2Selection.open) {
-      player2Selection.querySelector('button').addEventListener('click', () => {
-        const player2Name = player2Selection.querySelector('input').value;
-        player2 = createPlayer(player2Name, 2);
-        player2Selection.close();
+    displayPlayer1Selection(mode) {
+      return new Promise((resolve) => {
+        player1Selection.showModal();
+        player1Selection
+          .querySelector('button')
+          .addEventListener('click', () => {
+            const player1Name = player1Selection.querySelector('input').value;
+            player1Div.querySelector('h2').textContent = player1Name;
+            // Add attack listeners to player 2 board
+
+            player1Selection.close();
+            resolve(player1Name);
+          });
       });
-    }
-    if (player2) {
-      const player2Div = document.querySelector('#player2div');
-      player2Div.querySelector('h2').textContent = player2.name;
-      const player1tiles = Array.from(
-        document.querySelector('#player1grid').querySelectorAll('.tile')
-      );
-      // Add attack listeners to player 1 board
+    },
+
+    displayPlayer2Selection() {
+      return new Promise((resolve) => {
+        player2Selection.showModal();
+        player2Selection
+          .querySelector('button')
+          .addEventListener('click', () => {
+            const player2Name = player2Selection.querySelector('input').value;
+            player2Selection.close();
+            resolve(player2Name);
+          });
+      });
+    },
+
+    setUpEventListeners() {
+      player2tiles.forEach((tile) => {
+        const gridCoords = mapTileToCoordinates(tile);
+        tile.addEventListener('click', () => {
+          player1.attack(gridCoords[0], gridCoords[1]);
+        });
+      });
       player1tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
           player2.attack(gridCoords[0], gridCoords[1]);
         });
       });
-      document.dispatchEvent(new Event('playersSet'));
-    }
-  });
-});
+    },
+  };
+  return gameUI;
+}
+// * Player selection on page load
+// Create player 1
 
 // * Main loop
 document.addEventListener('playersSet', () => {
