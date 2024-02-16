@@ -104,6 +104,9 @@ const createGameboard = () => {
               grid[row][column + 1] = 'disabled';
             } else if (row === 0 && column === 9) {
               grid[row][column - 1] = 'disabled';
+            } else if (row === 0) {
+              grid[row][column - 1] = 'disabled';
+              grid[row][column + 1] = 'disabled';
             } else if (column === 0) {
               grid[row - 1][column] = 'disabled';
               grid[row][column + 1] = 'disabled';

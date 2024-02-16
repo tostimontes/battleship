@@ -24,46 +24,55 @@ function mapTileToCoordinates(tile) {
 
 function mapCoordinatesToTile(row, column) {
   const numberToLetter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-  return `${row + 1}${numberToLetter[column]}`;
+  return `${numberToLetter[column]}${row + 1}`;
 }
 
 function setGameUI() {
   // * querySelector as properties + DOM manipulation as methods
   const player1Div = document.querySelector('#player1div');
   const player2Div = document.querySelector('#player2div');
-  const player1grid = document
-    .querySelector('#player1grid')
-    .querySelectorAll('.tile');
-  const player2grid = document
-    .querySelector('#player2grid')
-    .querySelectorAll('.tile');
+  const player1grid = document.querySelector('#player1grid');
+  const player2grid = document.querySelector('#player2grid');
+  const player1Tiles = Array.from(
+    document.querySelector('#player1grid').querySelectorAll('.tile')
+  );
+  const player2Tiles = Array.from(
+    document.querySelector('#player2grid').querySelectorAll('.tile')
+  );
   const playerModeDialog = document.querySelector('#player-mode-dialog');
   const player1Selection = document.querySelector('#player1-name-dialog');
   const player2Selection = document.querySelector('#player2-name-dialog');
   const player1Fleet = document.querySelector('#player1fleet');
   const player2Fleet = document.querySelector('#player2fleet');
+  const player1Message = player1Div.querySelector('.message-box');
+  const player2Message = player2Div.querySelector('.message-box');
 
   const gameUI = {
     updateBoard(player, xCoord, yCoord, result) {
       if (player === 1) {
-        player2grid
-          .querySelector(`.${mapCoordinatesToTile(xCoord, yCoord)}`)
-          .classList.add(result);
+        const target = player2grid.querySelector(
+          `.${mapCoordinatesToTile(xCoord, yCoord)}`
+        );
+        target.classList.add(result.message);
+        target.textContent = result.message.slice(0, 1);
       } else {
-        player1grid
-          .querySelector(`.${mapCoordinatesToTile(xCoord, yCoord)}`)
-          .classList.add(result);
+        const target = player1grid.querySelector(
+          `.${mapCoordinatesToTile(xCoord, yCoord)}`
+        );
+        target.classList.add(result.message);
+        target.textContent = result.message.slice(0, 1);
       }
     },
     promptPlayerToPlay(player) {
       if (player === 1) {
-        player1message.textContent = `Player 1, it's your turn`;
+        player1Message.textContent = `Player 1, it's your turn`;
+        player2Message.textContent = `It's player 1's turn`;
       } else {
-        player2message.textContent = `Player 2, it's your turn`;
+        player2Message.textContent = `Player 2, it's your turn`;
+        player1Message.textContent = `It's player 2's turn`;
       }
     },
-    getPlayerMode(mode) {},
-    getPlayerName(player, name) {},
+
     displayModeSelection() {
       return new Promise((resolve) => {
         document.addEventListener('DOMContentLoaded', () => {
@@ -88,7 +97,7 @@ function setGameUI() {
       });
     },
 
-    displayPlayer1Selection(mode) {
+    displayPlayer1Selection() {
       return new Promise((resolve) => {
         player1Selection.showModal();
         player1Selection
@@ -96,8 +105,6 @@ function setGameUI() {
           .addEventListener('click', () => {
             const player1Name = player1Selection.querySelector('input').value;
             player1Div.querySelector('h2').textContent = player1Name;
-            // Add attack listeners to player 2 board
-
             player1Selection.close();
             resolve(player1Name);
           });
@@ -117,29 +124,22 @@ function setGameUI() {
       });
     },
 
-    setUpEventListeners() {
-      player2tiles.forEach((tile) => {
+    setUpEventListeners(controller) {
+      player2Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
-          player1.attack(gridCoords[0], gridCoords[1]);
+          controller.handlePlayerAttack(1, gridCoords[0], gridCoords[1]);
         });
       });
-      player1tiles.forEach((tile) => {
+      player1Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
-          player2.attack(gridCoords[0], gridCoords[1]);
+          controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
         });
       });
     },
   };
   return gameUI;
 }
-// * Player selection on page load
-// Create player 1
-
-// * Main loop
-document.addEventListener('playersSet', () => {
-  function nextTurn(params) {}
-});
 
 export default setGameUI;
