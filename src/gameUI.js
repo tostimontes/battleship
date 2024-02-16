@@ -27,6 +27,44 @@ function mapCoordinatesToTile(row, column) {
   return `${numberToLetter[column]}${row + 1}`;
 }
 
+function makeDraggable(ship) {
+  let originalX;
+  let originalY;
+  let initialX;
+  let initialY;
+  let isDragging = false;
+
+  ship.addEventListener('mousedown', function (e) {
+    isDragging = true;
+    initialX = e.clientX;
+    initialY = e.clientY;
+
+    originalX = ship.style.left;
+    originalY = ship.style.top;
+
+    ship.style.position = 'absolute';
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (isDragging) {
+      ship.style.left = `${e.clientX - initialX}px`;
+      ship.style.top = `${e.clientY - initialY}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', function (e) {
+    if (isDragging) {
+      isDragging = false;
+      ship.style.position = 'static';
+      // Check if the ship is outside the grid and move it back to original position
+      // if (/* condition to check if outside the grid */) {
+      ship.style.left = originalX;
+      ship.style.top = originalY;
+      // }
+    }
+  });
+}
+
 function setGameUI() {
   // * querySelector as properties + DOM manipulation as methods
   const player1Div = document.querySelector('#player1div');
@@ -49,6 +87,7 @@ function setGameUI() {
   const gameOverDialog = document.querySelector('#game-over-dialog');
   const winMessage = gameOverDialog.querySelector('p');
   const playAgainButton = gameOverDialog.querySelector('button');
+  const ships = document.querySelectorAll('.ship');
 
   const gameUI = {
     updateBoard(player, xCoord, yCoord, result) {
@@ -146,6 +185,7 @@ function setGameUI() {
     },
 
     setUpEventListeners(controller) {
+      // Tile listeners
       player2Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
@@ -158,6 +198,8 @@ function setGameUI() {
           controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
         });
       });
+      // Ships draggable + placement listeners
+      ships.forEach(makeDraggable);
     },
 
     showWinMessage(player, controller) {

@@ -2,11 +2,16 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* border: 1px solid black; */
 }
 
 :root {
   font-size: 62.5%;
+}
+
+@font-face {
+  font-family: 'Nabla';
+  src: url(../media/Fonts/Nabla-Regular-VariableFont_EDPT\,EHLT.ttf)
+    format('truetype');
 }
 
 body {
@@ -60,7 +65,122 @@ dialog {
   width: 100%;
   height: 75%;
   display: flex;
-  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.fleet-deck {
+  align-self: flex-end;
+  width: 20%;
+  height: 90%;
+  /* border: 1px solid black; */
+  margin-right: 1.5rem;
+  display: grid;
+  position: relative;
+}
+
+#player1fleet {
+  grid:
+    'carrier1 submarine1' 1fr
+    'carrier1 submarine1' 1fr
+    'carrier1 submarine1' 1fr
+    'carrier1 destroyer1' 1fr
+    'carrier1 destroyer1' 1fr
+    'battleship1 .' 1fr
+    'battleship1 cruiser1' 1fr
+    'battleship1 cruiser1' 1fr
+    'battleship1 cruiser1' 1fr
+    / 1fr 1fr;
+
+}
+
+#player2fleet {
+  grid:
+    'carrier2 submarine2' 1fr
+    'carrier2 submarine2' 1fr
+    'carrier2 submarine2' 1fr
+    'carrier2 destroyer2' 1fr
+    'carrier2 destroyer2' 1fr
+    'battleship2 .' 1fr
+    'battleship2 cruiser2' 1fr
+    'battleship2 cruiser2' 1fr
+    'battleship2 cruiser2' 1fr
+    / 1fr 1fr;
+
+}
+
+#carrier1,
+#battleship1,
+#submarine1,
+#destroyer1,
+#cruiser1 {
+  background-size: contain;
+  background-position: center; /* Center the image within the element */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+#carrier1 {
+  background-image: url(../media/carrier.png);
+  grid-area: carrier1;
+}
+
+#battleship1 {
+  background-image: url(../media/battleship.png);
+  grid-area: battleship1;
+}
+
+#submarine1 {
+  background-image: url(../media/submarine.png);
+  grid-area: submarine1;
+}
+
+#destroyer1 {
+  background-image: url(../media/destroyer.png);
+  grid-area: destroyer1;
+}
+
+#cruiser1 {
+  background-image: url(../media/cruiser.png);
+  grid-area: cruiser1;
+}
+
+#carrier2,
+#battleship2,
+#submarine2,
+#destroyer2,
+#cruiser2 {
+  background-size: contain;
+  background-position: center; /* Center the image within the element */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  width: 100%;
+  height: 100%;
+}
+
+#carrier2 {
+  background-image: url(../media/carrier.png);
+  grid-area: carrier2;
+}
+
+#battleship2 {
+  background-image: url(../media/battleship.png);
+  grid-area: battleship2;
+}
+
+#submarine2 {
+  background-image: url(../media/submarine.png);
+  grid-area: submarine2;
+}
+
+#destroyer2 {
+  background-image: url(../media/destroyer.png);
+  grid-area: destroyer2;
+}
+
+#cruiser2 {
+  background-image: url(../media/cruiser.png);
+  grid-area: cruiser2;
 }
 
 .gameboard-grid {
@@ -76,6 +196,9 @@ dialog {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: 'Nabla';
+  font-size: 3.3rem;
+  text-shadow: 1px 1px rgb(118, 118, 118);
 }
 
 .tile {
@@ -133,18 +256,18 @@ dialog {
 
 @keyframes scaleDown {
   from {
-    transform: scale(1.5) translate(-35%, -25%)   rotate(45deg);
+    transform: scale(1.5) translate(-35%, -25%) rotate(45deg);
   }
   to {
-    transform: scale(1) translate(-50%, -50%)  rotate(45deg);
+    transform: scale(1) translate(-50%, -50%) rotate(45deg);
   }
 }
 
 @keyframes scaleDownReverse {
   from {
-    transform: scale(1.5) translate(-35%, -25%)   rotate(-45deg);
+    transform: scale(1.5) translate(-35%, -25%) rotate(-45deg);
   }
   to {
-    transform: scale(1) translate(-50%, -50%)  rotate(-45deg);
+    transform: scale(1) translate(-50%, -50%) rotate(-45deg);
   }
 }
