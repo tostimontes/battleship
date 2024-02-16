@@ -46,6 +46,9 @@ function setGameUI() {
   const player2Fleet = document.querySelector('#player2fleet');
   const player1Message = player1Div.querySelector('.message-box');
   const player2Message = player2Div.querySelector('.message-box');
+  const gameOverDialog = document.querySelector('#game-over-dialog');
+  const winMessage = gameOverDialog.querySelector('p');
+  const playAgainButton = gameOverDialog.querySelector('button');
 
   const gameUI = {
     updateBoard(player, xCoord, yCoord, result) {
@@ -53,23 +56,39 @@ function setGameUI() {
         const target = player2grid.querySelector(
           `.${mapCoordinatesToTile(xCoord, yCoord)}`
         );
-        target.classList.add(result.message);
-        target.textContent = result.message.slice(0, 1);
+        if (result.message === 'hit') {
+          target.classList.add('hit');
+        } else {
+          target.classList.add('missed');
+        }
       } else {
         const target = player1grid.querySelector(
           `.${mapCoordinatesToTile(xCoord, yCoord)}`
         );
-        target.classList.add(result.message);
-        target.textContent = result.message.slice(0, 1);
+        if (result.message === 'hit') {
+          target.classList.add('hit');
+        } else {
+          target.classList.add('missed');
+        }
       }
     },
-    promptPlayerToPlay(player) {
+    promptPlayerToPlay(player, result) {
       if (player === 1) {
         player1Message.textContent = `Player 1, it's your turn`;
-        player2Message.textContent = `It's player 1's turn`;
+        if (!result) {
+          player2Message.textContent = `It's player 1's turn`;
+        } else if (result.message === 'hit') {
+          player2Message.textContent = `You hit a ship!`;
+        } else if (result.message === 'missed') {
+          player2Message.textContent = `Water...`;
+        }
       } else {
         player2Message.textContent = `Player 2, it's your turn`;
-        player1Message.textContent = `It's player 2's turn`;
+        if (result.message === 'hit') {
+          player1Message.textContent = `You hit a ship!`;
+        } else if (result.message === 'missed') {
+          player1Message.textContent = `Water...`;
+        }
       }
     },
 
@@ -87,6 +106,7 @@ function setGameUI() {
                 playerModeDialog.querySelector('input[value="single"]').checked
               ) {
                 playerMode = 'single';
+                player2Div.querySelector('h2').textContent = 'AI';
               } else {
                 playerMode = 'two';
               }
@@ -118,6 +138,7 @@ function setGameUI() {
           .querySelector('button')
           .addEventListener('click', () => {
             const player2Name = player2Selection.querySelector('input').value;
+            player2Div.querySelector('h2').textContent = player2Name;
             player2Selection.close();
             resolve(player2Name);
           });
@@ -136,6 +157,18 @@ function setGameUI() {
         tile.addEventListener('click', () => {
           controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
         });
+      });
+    },
+
+    showWinMessage(player, controller) {
+      gameOverDialog.showModal();
+      if (player === 1) {
+        winMessage.textContent = 'Player 1 won!';
+      } else {
+        winMessage.textContent = 'Player 2 won!';
+      }
+      playAgainButton.addEventListener('click', () => {
+        controller.resetGame();
       });
     },
   };

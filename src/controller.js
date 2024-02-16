@@ -10,9 +10,17 @@ function setController(logic, userInterface) {
       if (player === this.game.turn) {
         const result = this.game.handleAttack(player, xCoord, yCoord);
         this.view.updateBoard(player, xCoord, yCoord, result);
-        this.game.checkWin(player);
-        this.view.promptPlayerToPlay(this.game.nextTurn());
+        if (this.game.checkWin(player)) {
+          this.view.showWinMessage(player, controller);
+          return;
+        }
+        this.view.promptPlayerToPlay(this.game.nextTurn(), result);
       }
+    },
+
+    resetGame() {
+      // reset all fleet
+      // Wipe UI (textContent, not listeners)
     },
   };
 
