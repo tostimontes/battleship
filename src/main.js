@@ -28,20 +28,16 @@ async function startGame() {
   // * Hard code fleet to test all else
   // game.placeShipsForTesting();
 
-  // TODO: prompt player 1 to place ships (disable ship placement for other player)
-
   // 'Player 1, place your ships' (disable p2)
   // Then: if AI random place
   // If p2 'Player 2, place your ships'
-  // TODO: disable ship placement of placed ships
-
+  
   // Set up UI event listeners
   view.setUpEventListeners(controller);
   controller.promptShipPlacement();
+  // TODO: generate random placement function
 
   // Prompt player 1 to place ships
-  // TODO 2) launchTurnOne() > when ships placed
-  // TODO 3) create overlay for two player mode + turn dialog
   // TODO 4) Random ship placement button + function
   // TODO 5) make AI smart (if hit > check vertical and horizontal)
   // TODO 6) style (pixel title, pixel generated background)
@@ -51,7 +47,6 @@ async function startGame() {
 
   // * Position fleets (this should wait for user input)
   // await for fleet to be positioned, then begin game
-
 }
 
 startGame();

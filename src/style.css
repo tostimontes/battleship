@@ -78,8 +78,6 @@ dialog {
   position: relative;
 }
 
-
-
 #player1fleet {
   grid:
     'carrier1 submarine1' 1fr
@@ -150,7 +148,6 @@ dialog {
   grid-area: cruiser1;
 }
 
-
 #carrier2 {
   background-image: url(../media/carrier.png);
   grid-area: carrier2;
@@ -212,8 +209,13 @@ dialog {
   position: relative;
 }
 .tile.hit {
+  background-color: transparent;
   background-image: url(../media/fire-transparent-bg.gif);
   z-index: 5;
+}
+
+.alternate-color .tile.hit {
+  background-color: #00bcd4;
 }
 
 /* Pseudo-elements for the lines of the 'X' */

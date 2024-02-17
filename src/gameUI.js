@@ -148,10 +148,6 @@ function setGameUI() {
           controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
         });
       });
-      // Ships draggable + placement listeners
-      // ships.forEach((ship) => {
-      //   makeDraggable(ship, controller);
-      // });
     },
 
     makeShipsDraggable(player, controller) {
@@ -165,6 +161,10 @@ function setGameUI() {
 
           function checkAllShipsPlaced() {
             if (placedShips.size === fleet.length) {
+              player1Fleet.forEach((ship) => {
+                ship.style.zIndex = -1;
+              });
+              player1grid.classList.toggle('alternate-color');
               resolve();
             }
           }
@@ -264,6 +264,26 @@ function setGameUI() {
         shipImage.style.backgroundSize = 'cover';
         shipImage.style.transformOrigin = 'top left';
       }
+    },
+
+    displayNextTurn(turn) {
+      if (turn === 1) {
+        player2Fleet.forEach((ship) => {
+          ship.style.zIndex = -1;
+        });
+        player1Fleet.forEach((ship) => {
+          ship.style.zIndex = 3;
+        });
+      } else {
+        player1Fleet.forEach((ship) => {
+          ship.style.zIndex = -1;
+        });
+        player2Fleet.forEach((ship) => {
+          ship.style.zIndex = 3;
+        });
+      }
+      player1grid.classList.toggle('alternate-color');
+      player2grid.classList.toggle('alternate-color');
     },
 
     showWinMessage(player, controller) {

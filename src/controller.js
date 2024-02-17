@@ -17,9 +17,11 @@ function setController(logic, userInterface) {
             `Player 1, it's your turn`,
             `It's player 1's turn`,
           ]);
+          this.view.displayNextTurn(1);
         });
       });
     },
+    changeTurn() {},
     processPlacement(ship, xCoord, yCoord, orientation) {
       const placementCoordinates = this.game.checkCoordinatesForPlacement(
         ship,
@@ -41,7 +43,7 @@ function setController(logic, userInterface) {
           this.view.showWinMessage(player, controller);
           return;
         }
-        this.game.nextTurn();
+        this.view.displayNextTurn(this.game.nextTurn());
         this.view.updateMessages(result.message);
       }
     },
