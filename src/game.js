@@ -9,9 +9,9 @@ function gameLogic() {
       player1 = playerOne;
       player2 = playerTwo;
     },
-    checkCoordinatesForPlacement(ship, xCoord, yCoord, orientation) {
-      const player = parseInt(ship.slice(ship.length - 1));
-      const draggingShip = ship.slice(0, ship.length - 1);
+    checkCoordinatesForPlacement(shipName, xCoord, yCoord, orientation) {
+      const player = parseInt(shipName.slice(shipName.length - 1));
+      const draggingShip = shipName.slice(0, shipName.length - 1);
       let selectedShip;
       if (player === 1) {
         for (const ship in player1.board.fleet) {

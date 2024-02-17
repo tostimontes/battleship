@@ -27,26 +27,19 @@ async function startGame() {
 
   // * Hard code fleet to test all else
   // game.placeShipsForTesting();
-
-  // 'Player 1, place your ships' (disable p2)
-  // Then: if AI random place
-  // If p2 'Player 2, place your ships'
   
   // Set up UI event listeners
+  
+  controller.promptShipPlacement(playerMode);
+  
+  // make this async or something so that no tiles trigger anything before placement
   view.setUpEventListeners(controller);
-  controller.promptShipPlacement();
-  // TODO: generate random placement function
 
   // Prompt player 1 to place ships
   // TODO 4) Random ship placement button + function
   // TODO 5) make AI smart (if hit > check vertical and horizontal)
   // TODO 6) style (pixel title, pixel generated background)
 
-  // ! Link gameboard to coords to place ships
-  // ! Calculate ships position and over which tiles it is and then trigger placeShip() with those coords
-
-  // * Position fleets (this should wait for user input)
-  // await for fleet to be positioned, then begin game
 }
 
 startGame();

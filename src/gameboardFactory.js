@@ -20,15 +20,15 @@ const createGameboard = () => {
       const selectedCoords = [];
       for (let i = 0; i < ship.length; i++) {
         if (orientation === 'horizontal') {
-          if (!grid[xCoord][yCoord + i] && xCoord <= 9 && yCoord + i <= 9) {
+          if (xCoord <= 9 && yCoord + i <= 9 && !grid[xCoord][yCoord + i]) {
             selectedCoords.push(`${xCoord}${yCoord + i}`);
           } else {
             return null;
           }
         } else if (
-          !grid[xCoord + i][yCoord] &&
           xCoord + i <= 9 &&
-          yCoord <= 9
+          yCoord <= 9 &&
+          !grid[xCoord + i][yCoord]
         ) {
           selectedCoords.push(`${xCoord + i}${yCoord}`);
         } else {

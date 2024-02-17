@@ -223,24 +223,24 @@ function setGameUI() {
       });
     },
 
-    updateTilesWithShip(ship, coordinates) {
+    updateTilesWithShip(shipName, coordinates) {
       const tiles = coordinates.map((coordinate) => {
         const row = parseInt(coordinate[0]);
         const column = parseInt(coordinate[1]);
         return mapCoordinatesToTile(row, column);
       });
-      const player = parseInt(ship.slice(ship.length - 1));
+      const player = parseInt(shipName.slice(shipName.length - 1));
       let firstTile;
       let lastTile;
       let shipImage;
       if (player === 1) {
         firstTile = player1grid.querySelector(`.${tiles[0]}`);
         lastTile = player1grid.querySelector(`.${tiles[tiles.length - 1]}`);
-        shipImage = document.querySelector(`#${ship}`);
+        shipImage = document.querySelector(`#${shipName}`);
       } else {
         firstTile = player2grid.querySelector(`.${tiles[0]}`);
         lastTile = player2grid.querySelector(`.${tiles[tiles.length - 1]}`);
-        shipImage = document.querySelector(`#${ship}`);
+        shipImage = document.querySelector(`#${shipName}`);
       }
       const { top } = firstTile.getBoundingClientRect();
       const { left } = firstTile.getBoundingClientRect();
@@ -258,7 +258,7 @@ function setGameUI() {
         shipImage.style.position = 'fixed';
         shipImage.style.zIndex = 3;
         shipImage.style.top = `${top}px`;
-        shipImage.style.left = `${right}px`;
+        shipImage.style.left = `${lastTile.getBoundingClientRect().right}px`;
         shipImage.style.width = `${bottom - top}px`;
         shipImage.style.height = `${right - left}px`;
         shipImage.style.backgroundSize = 'cover';
