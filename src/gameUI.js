@@ -27,7 +27,6 @@ function mapCoordinatesToTile(row, column) {
 }
 
 function setGameUI() {
-  // * querySelector as properties + DOM manipulation as methods
   const player1Div = document.querySelector('#player1div');
   const player2Div = document.querySelector('#player2div');
   const player1grid = document.querySelector('#player1grid');
@@ -41,8 +40,12 @@ function setGameUI() {
   const playerModeDialog = document.querySelector('#player-mode-dialog');
   const player1Selection = document.querySelector('#player1-name-dialog');
   const player2Selection = document.querySelector('#player2-name-dialog');
-  const player1Fleet = document.querySelector('#player1fleet');
-  const player2Fleet = document.querySelector('#player2fleet');
+  const player1Fleet = document
+    .querySelector('#player1fleet')
+    .querySelectorAll('.ship');
+  const player2Fleet = document
+    .querySelector('#player2fleet')
+    .querySelectorAll('.ship');
   const player1Message = player1Div.querySelector('.message-box');
   const player2Message = player2Div.querySelector('.message-box');
   const gameOverDialog = document.querySelector('#game-over-dialog');
@@ -72,24 +75,10 @@ function setGameUI() {
         }
       }
     },
-    promptPlayerToPlay(player, result) {
-      if (player === 1) {
-        player1Message.textContent = `Player 1, it's your turn`;
-        if (!result) {
-          player2Message.textContent = `It's player 1's turn`;
-        } else if (result.message === 'hit') {
-          player2Message.textContent = `You hit a ship!`;
-        } else if (result.message === 'missed') {
-          player2Message.textContent = `Water...`;
-        }
-      } else {
-        player2Message.textContent = `Player 2, it's your turn`;
-        if (result.message === 'hit') {
-          player1Message.textContent = `You hit a ship!`;
-        } else if (result.message === 'missed') {
-          player1Message.textContent = `Water...`;
-        }
-      }
+    updateMessages(message) {
+      // TODO: change result.message. Maybe this method should only take one argument message, which should always be an object with two properties, one for each player
+      player1Message.textContent = message[0];
+      player2Message.textContent = message[1];
     },
 
     displayModeSelection() {
@@ -160,8 +149,77 @@ function setGameUI() {
         });
       });
       // Ships draggable + placement listeners
-      ships.forEach((ship) => {
+      // ships.forEach((ship) => {
+      //   makeDraggable(ship, controller);
+      // });
+    },
+
+    makeShipsDraggable(player, controller) {
+      if (player === 1) {
+        player1Fleet.forEach((ship) => {
+          makeDraggable(ship, controller);
+        });
+        return new Promise((resolve) => {
+          const fleet = player === 1 ? player1Fleet : player2Fleet;
+          const placedShips = new Set();
+
+          function checkAllShipsPlaced() {
+            if (placedShips.size === fleet.length) {
+              resolve();
+            }
+          }
+
+          fleet.forEach((ship) => {
+            const observer = new MutationObserver((mutations) => {
+              mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                  const { target } = mutation;
+                  if (
+                    target.classList.contains('placed') &&
+                    !placedShips.has(target)
+                  ) {
+                    placedShips.add(target);
+                    checkAllShipsPlaced();
+                  }
+                }
+              });
+            });
+
+            observer.observe(ship, { attributes: true });
+          });
+        });
+      }
+      player2Fleet.forEach((ship) => {
         makeDraggable(ship, controller);
+      });
+      return new Promise((resolve) => {
+        const fleet = player === 1 ? player1Fleet : player2Fleet;
+        const placedShips = new Set();
+
+        function checkAllShipsPlaced() {
+          if (placedShips.size === fleet.length) {
+            resolve();
+          }
+        }
+
+        fleet.forEach((ship) => {
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.attributeName === 'class') {
+                const { target } = mutation;
+                if (
+                  target.classList.contains('placed') &&
+                  !placedShips.has(target)
+                ) {
+                  placedShips.add(target);
+                  checkAllShipsPlaced();
+                }
+              }
+            });
+          });
+
+          observer.observe(ship, { attributes: true });
+        });
       });
     },
 
@@ -171,9 +229,7 @@ function setGameUI() {
         const column = parseInt(coordinate[1]);
         return mapCoordinatesToTile(row, column);
       });
-      // TODO: figure out how to fill the tiles with one ship image
       const player = parseInt(ship.slice(ship.length - 1));
-      const shipName = ship.slice(0, ship.length - 1);
       let firstTile;
       let lastTile;
       let shipImage;
@@ -192,7 +248,7 @@ function setGameUI() {
       const { right } = lastTile.getBoundingClientRect();
       if (shipImage.classList[2] === 'vertical') {
         shipImage.style.position = 'fixed';
-        shipImage.style.zIndex = 10;
+        shipImage.style.zIndex = 3;
         shipImage.style.top = `${top}px`;
         shipImage.style.left = `${left}px`;
         shipImage.style.width = `${right - left}px`;
@@ -200,7 +256,7 @@ function setGameUI() {
         shipImage.style.backgroundSize = 'cover';
       } else {
         shipImage.style.position = 'fixed';
-        shipImage.style.zIndex = 10;
+        shipImage.style.zIndex = 3;
         shipImage.style.top = `${top}px`;
         shipImage.style.left = `${right}px`;
         shipImage.style.width = `${bottom - top}px`;
@@ -209,6 +265,7 @@ function setGameUI() {
         shipImage.style.transformOrigin = 'top left';
       }
     },
+
     showWinMessage(player, controller) {
       gameOverDialog.showModal();
       if (player === 1) {

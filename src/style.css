@@ -213,6 +213,7 @@ dialog {
 }
 .tile.hit {
   background-image: url(../media/fire-transparent-bg.gif);
+  z-index: 5;
 }
 
 /* Pseudo-elements for the lines of the 'X' */
@@ -227,6 +228,7 @@ dialog {
   height: 2px;
   background-color: red;
   transform-origin: center;
+  z-index: 5;
 }
 
 .tile::before {

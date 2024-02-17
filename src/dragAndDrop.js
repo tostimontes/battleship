@@ -22,7 +22,10 @@ function findClosestTile(ship, tiles) {
     }
   });
 
-  return mapTileToCoordinates(closestTile);
+  if (minDistance < closestTile.clientWidth) {
+    return mapTileToCoordinates(closestTile);
+  }
+  return null;
 }
 function getDistance(a, b) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
@@ -48,6 +51,9 @@ function makeDraggable(ship, controller) {
   let isDragging = false;
 
   ship.addEventListener('mousedown', function (e) {
+    if (ship.classList.contains('placed')) {
+      return;
+    }
     isDragging = true;
     initialX = e.clientX;
     initialY = e.clientY;
@@ -60,6 +66,9 @@ function makeDraggable(ship, controller) {
   });
 
   document.addEventListener('mousemove', function (e) {
+    if (ship.classList.contains('placed')) {
+      return;
+    }
     if (isDragging) {
       ship.style.left = `${e.clientX - initialX}px`;
       ship.style.top = `${e.clientY - initialY}px`;
@@ -77,6 +86,9 @@ function makeDraggable(ship, controller) {
   });
 
   document.addEventListener('mouseup', function (e) {
+    if (ship.classList.contains('placed')) {
+      return;
+    }
     if (isDragging) {
       isDragging = false;
       let orientation;
@@ -86,8 +98,21 @@ function makeDraggable(ship, controller) {
         orientation = 'vertical';
       }
       ship.classList.remove('dragging');
+      const player = parseInt(ship.id.slice(ship.id.length - 1));
+      let grid;
+      player === 1 ? (grid = player1Tiles) : (grid = player2Tiles);
 
-      const closestTileCoords = findClosestTile(ship, player1Tiles);
+      const closestTileCoords = findClosestTile(ship, grid);
+      if (!closestTileCoords) {
+        ship.style.position = 'static';
+        if (ship.classList.contains('horizontal')) {
+          ship.classList.toggle('horizontal');
+          ship.classList.toggle('vertical');
+        }
+        ship.style.left = originalX;
+        ship.style.top = originalY;
+        return;
+      }
       const shipPlaced = controller.processPlacement(
         ship.id,
         closestTileCoords[0],
@@ -102,6 +127,8 @@ function makeDraggable(ship, controller) {
         }
         ship.style.left = originalX;
         ship.style.top = originalY;
+      } else {
+        ship.classList.add('placed');
       }
     }
   });

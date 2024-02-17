@@ -2,9 +2,23 @@ function setController(logic, userInterface) {
   const controller = {
     game: logic,
     view: userInterface,
-    launchTurnOne() {
-      // view.promptPlayerToPlay(player)
-      this.view.promptPlayerToPlay(1);
+    promptShipPlacement() {
+      this.view.updateMessages([
+        'Player 1, place your fleet',
+        'Wait for player 1 to place fleet',
+      ]);
+      this.view.makeShipsDraggable(1, controller).then(() => {
+        this.view.updateMessages([
+          'Wait for player 2 to place fleet',
+          'Player 2, place your fleet',
+        ]);
+        this.view.makeShipsDraggable(2, controller).then(() => {
+          this.view.updateMessages([
+            `Player 1, it's your turn`,
+            `It's player 1's turn`,
+          ]);
+        });
+      });
     },
     processPlacement(ship, xCoord, yCoord, orientation) {
       const placementCoordinates = this.game.checkCoordinatesForPlacement(
@@ -27,7 +41,8 @@ function setController(logic, userInterface) {
           this.view.showWinMessage(player, controller);
           return;
         }
-        this.view.promptPlayerToPlay(this.game.nextTurn(), result);
+        this.game.nextTurn();
+        this.view.updateMessages(result.message);
       }
     },
 
