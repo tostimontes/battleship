@@ -9,6 +9,32 @@ function gameLogic() {
       player1 = playerOne;
       player2 = playerTwo;
     },
+    checkCoordinatesForPlacement(ship, xCoord, yCoord, orientation) {
+      const player = parseInt(ship.slice(ship.length - 1));
+      const draggingShip = ship.slice(0, ship.length - 1);
+      let selectedShip;
+      if (player === 1) {
+        for (const ship in player1.board.fleet) {
+          if (ship === draggingShip) {
+            selectedShip = player1.board.fleet[ship];
+            break;
+          }
+        }
+        return player1.board.placeShip(
+          selectedShip,
+          xCoord,
+          yCoord,
+          orientation
+        );
+      }
+      for (const ship in player2.board.fleet) {
+        if (ship === draggingShip) {
+          selectedShip = player2.board.fleet[ship];
+          break;
+        }
+      }
+      return player2.board.placeShip(selectedShip, xCoord, yCoord, orientation);
+    },
     handleAttack(player, xCoord, yCoord) {
       if (player === 1) {
         return player2.board.receiveAttack(xCoord, yCoord);

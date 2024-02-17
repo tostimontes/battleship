@@ -1,6 +1,5 @@
 import './style.css';
-// TODO: generate pixelated animations for water, fire/shipwreck, each ship
-// * Implement 3 AI levels, random
+import makeDraggable from './dragAndDrop.js';
 // TODO: add rejects and error handling to Promises
 
 function mapTileToCoordinates(tile) {
@@ -25,44 +24,6 @@ function mapTileToCoordinates(tile) {
 function mapCoordinatesToTile(row, column) {
   const numberToLetter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
   return `${numberToLetter[column]}${row + 1}`;
-}
-
-function makeDraggable(ship) {
-  let originalX;
-  let originalY;
-  let initialX;
-  let initialY;
-  let isDragging = false;
-
-  ship.addEventListener('mousedown', function (e) {
-    isDragging = true;
-    initialX = e.clientX;
-    initialY = e.clientY;
-
-    originalX = ship.style.left;
-    originalY = ship.style.top;
-
-    ship.style.position = 'absolute';
-  });
-
-  document.addEventListener('mousemove', function (e) {
-    if (isDragging) {
-      ship.style.left = `${e.clientX - initialX}px`;
-      ship.style.top = `${e.clientY - initialY}px`;
-    }
-  });
-
-  document.addEventListener('mouseup', function (e) {
-    if (isDragging) {
-      isDragging = false;
-      ship.style.position = 'static';
-      // Check if the ship is outside the grid and move it back to original position
-      // if (/* condition to check if outside the grid */) {
-      ship.style.left = originalX;
-      ship.style.top = originalY;
-      // }
-    }
-  });
 }
 
 function setGameUI() {
@@ -199,9 +160,55 @@ function setGameUI() {
         });
       });
       // Ships draggable + placement listeners
-      ships.forEach(makeDraggable);
+      ships.forEach((ship) => {
+        makeDraggable(ship, controller);
+      });
     },
 
+    updateTilesWithShip(ship, coordinates) {
+      const tiles = coordinates.map((coordinate) => {
+        const row = parseInt(coordinate[0]);
+        const column = parseInt(coordinate[1]);
+        return mapCoordinatesToTile(row, column);
+      });
+      // TODO: figure out how to fill the tiles with one ship image
+      const player = parseInt(ship.slice(ship.length - 1));
+      const shipName = ship.slice(0, ship.length - 1);
+      let firstTile;
+      let lastTile;
+      let shipImage;
+      if (player === 1) {
+        firstTile = player1grid.querySelector(`.${tiles[0]}`);
+        lastTile = player1grid.querySelector(`.${tiles[tiles.length - 1]}`);
+        shipImage = document.querySelector(`#${ship}`);
+      } else {
+        firstTile = player2grid.querySelector(`.${tiles[0]}`);
+        lastTile = player2grid.querySelector(`.${tiles[tiles.length - 1]}`);
+        shipImage = document.querySelector(`#${ship}`);
+      }
+      const { top } = firstTile.getBoundingClientRect();
+      const { left } = firstTile.getBoundingClientRect();
+      const { bottom } = lastTile.getBoundingClientRect();
+      const { right } = lastTile.getBoundingClientRect();
+      if (shipImage.classList[2] === 'vertical') {
+        shipImage.style.position = 'fixed';
+        shipImage.style.zIndex = 10;
+        shipImage.style.top = `${top}px`;
+        shipImage.style.left = `${left}px`;
+        shipImage.style.width = `${right - left}px`;
+        shipImage.style.height = `${bottom - top}px`;
+        shipImage.style.backgroundSize = 'cover';
+      } else {
+        shipImage.style.position = 'fixed';
+        shipImage.style.zIndex = 10;
+        shipImage.style.top = `${top}px`;
+        shipImage.style.left = `${right}px`;
+        shipImage.style.width = `${bottom - top}px`;
+        shipImage.style.height = `${right - left}px`;
+        shipImage.style.backgroundSize = 'cover';
+        shipImage.style.transformOrigin = 'top left';
+      }
+    },
     showWinMessage(player, controller) {
       gameOverDialog.showModal();
       if (player === 1) {
@@ -217,4 +224,4 @@ function setGameUI() {
   return gameUI;
 }
 
-export default setGameUI;
+export { setGameUI, mapCoordinatesToTile, mapTileToCoordinates };

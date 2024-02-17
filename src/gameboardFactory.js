@@ -26,7 +26,7 @@ const createGameboard = () => {
             return null;
           }
         } else if (
-          !grid[xCoord][yCoord + i] &&
+          !grid[xCoord + i][yCoord] &&
           xCoord + i <= 9 &&
           yCoord <= 9
         ) {
@@ -159,6 +159,7 @@ const createGameboard = () => {
           }
         }
       });
+      return selectedCoords;
     },
 
     receiveAttack(xCoord, yCoord) {

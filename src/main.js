@@ -1,6 +1,6 @@
 import setController from './controller.js';
 import gameLogic from './game.js';
-import setGameUI from './gameUI.js';
+import { setGameUI } from './gameUI.js';
 import createPlayer from './playerFactory.js';
 
 async function startGame() {
@@ -25,14 +25,23 @@ async function startGame() {
   // Initialize the game with players
   game.init(player1, player2);
 
-  // Hard code fleet to test all else
-  game.placeShipsForTesting();
+  // * Hard code fleet to test all else
+  // game.placeShipsForTesting();
 
   // Set up UI event listeners
   view.setUpEventListeners(controller);
 
-  // * update board with names and fleet to init
+  // Prompt player 1 to place ships
+  // TODO 1) placeShip() > take coords with getBoundClientRect
+  //
+  // TODO 2) launchTurnOne() > when ships placed
+  // TODO 3) create overlay for two player mode + turn dialog
+  // TODO 4) Random ship placement button + function
+  // TODO 5) make AI smart (if hit > check vertical and horizontal)
+  // TODO 6) style (pixel title, pixel generated background)
+
   // ! Link gameboard to coords to place ships
+  // ! Calculate ships position and over which tiles it is and then trigger placeShip() with those coords
 
   // * Position fleets (this should wait for user input)
   // await for fleet to be positioned, then begin game

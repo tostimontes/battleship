@@ -6,6 +6,19 @@ function setController(logic, userInterface) {
       // view.promptPlayerToPlay(player)
       this.view.promptPlayerToPlay(1);
     },
+    processPlacement(ship, xCoord, yCoord, orientation) {
+      const placementCoordinates = this.game.checkCoordinatesForPlacement(
+        ship,
+        xCoord,
+        yCoord,
+        orientation
+      );
+      if (placementCoordinates) {
+        this.view.updateTilesWithShip(ship, placementCoordinates);
+        return true;
+      }
+      return null;
+    },
     handlePlayerAttack(player, xCoord, yCoord) {
       if (player === this.game.turn) {
         const result = this.game.handleAttack(player, xCoord, yCoord);

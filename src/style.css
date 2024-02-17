@@ -78,6 +78,8 @@ dialog {
   position: relative;
 }
 
+
+
 #player1fleet {
   grid:
     'carrier1 submarine1' 1fr
@@ -90,7 +92,6 @@ dialog {
     'battleship1 cruiser1' 1fr
     'battleship1 cruiser1' 1fr
     / 1fr 1fr;
-
 }
 
 #player2fleet {
@@ -105,20 +106,23 @@ dialog {
     'battleship2 cruiser2' 1fr
     'battleship2 cruiser2' 1fr
     / 1fr 1fr;
-
 }
 
-#carrier1,
-#battleship1,
-#submarine1,
-#destroyer1,
-#cruiser1 {
+.ship {
   background-size: contain;
   background-position: center; /* Center the image within the element */
   background-repeat: no-repeat; /* Do not repeat the image */
   width: 100%;
   height: 100%;
   z-index: 2;
+}
+
+.ship.vertical {
+  transform: rotate(0deg);
+}
+
+.ship.horizontal {
+  transform: rotate(90deg);
 }
 
 #carrier1 {
@@ -146,17 +150,6 @@ dialog {
   grid-area: cruiser1;
 }
 
-#carrier2,
-#battleship2,
-#submarine2,
-#destroyer2,
-#cruiser2 {
-  background-size: contain;
-  background-position: center; /* Center the image within the element */
-  background-repeat: no-repeat; /* Do not repeat the image */
-  width: 100%;
-  height: 100%;
-}
 
 #carrier2 {
   background-image: url(../media/carrier.png);
