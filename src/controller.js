@@ -105,15 +105,7 @@ function setController(logic, userInterface) {
     },
     handlePlayerAttack(player, xCoord, yCoord) {
       // * Helpers
-      function determineDirection(currentCoords, previousCoords) {
-        // Logic to determine the direction based on current and previous coordinates
-        if (currentCoords.x === previousCoords.x) {
-          return currentCoords.y > previousCoords.y ? 'right' : 'left';
-        }
-        return currentCoords.x > previousCoords.x ? 'down' : 'up';
-      }
-      function updateDisabledTiles(x, y, player) {
-        // Array of relative positions for diagonal tiles
+      function updateInvalidTiles(x, y, player) {
         const diagonalOffsets = [
           { dx: -1, dy: -1 },
           { dx: -1, dy: 1 },
@@ -125,187 +117,25 @@ function setController(logic, userInterface) {
           const newX = x + offset.dx;
           const newY = y + offset.dy;
 
-          // Check if the diagonal tile is within bounds
           if (newX >= 0 && newX < 10 && newY >= 0 && newY < 10) {
             const diagonalCoord = { x: newX, y: newY };
             if (
-              !player.disabledTiles.some(
+              !player.invalidTiles.some(
                 (coord) =>
                   coord.x === diagonalCoord.x && coord.y === diagonalCoord.y
               )
             ) {
-              player.disabledTiles.push(diagonalCoord);
+              player.invalidTiles.push(diagonalCoord);
             }
           }
         });
       }
 
-      function shouldContinueInCurrentDirectionOrOrientation(aiPlayer) {
-        let {
-          coordinates: { x, y },
-          direction,
-          streak,
-        } = aiPlayer.lastShot;
-
-        // If there's no direction set but there's a streak, we should still check other directions
-        if (aiPlayer.random || (streak > 1 && !direction)) {
-          return false;
-        }
-
-        if (streak === 1) {
-          x = aiPlayer.lastShot.previousCoordinates.x;
-          y = aiPlayer.lastShot.previousCoordinates.y;
-          // If streak is 1, check if adjacent tiles in all directions are valid targets
-          const adjacentTiles = [
-            { x, y: y - 1 }, // Above
-            { x, y: y + 1 }, // Below
-            { x: x - 1, y }, // Left
-            { x: x + 1, y }, // Right
-          ];
-
-          return adjacentTiles.some((tile) => isValidTarget(tile, aiPlayer));
-        }
-        // For streaks greater than 1, check the next tile in both directions
-        const nextTileInDirection = getNextTileInDirection(
-          x,
-          y,
-          direction,
-          streak
-        );
-        const nextTileInOppositeDirection = getNextTileInDirection(
-          x,
-          y,
-          direction,
-          -streak
-        );
-
-        return (
-          isValidTarget(nextTileInDirection, aiPlayer) ||
-          isValidTarget(nextTileInOppositeDirection, aiPlayer)
-        );
-      }
-
-      function changeDirectionForNextShot(aiPlayer) {
-        const { direction, coordinates, streak } = aiPlayer.lastShot;
-
-        if (!direction && streak === 1) {
-          // If first hit followed by a miss, check right, up, down in sequence
-          if (!aiPlayer.checkedRight) {
-            aiPlayer.lastShot.direction = 'right';
-            aiPlayer.checkedRight = true;
-          } else if (!aiPlayer.checkedUp) {
-            aiPlayer.lastShot.direction = 'up';
-            aiPlayer.checkedUp = true;
-          } else if (!aiPlayer.checkedDown) {
-            aiPlayer.lastShot.direction = 'down';
-            aiPlayer.checkedDown = true;
-          }
-        } else if (
-          direction === 'horizontal' ||
-          direction === 'left' ||
-          direction === 'right'
-        ) {
-          aiPlayer.lastShot.direction = 'vertical';
-        } else if (
-          direction === 'vertical' ||
-          direction === 'up' ||
-          direction === 'down'
-        ) {
-          aiPlayer.lastShot.direction = 'horizontal';
-        }
-
-        // Reset to original hit coordinate and streak
-        aiPlayer.lastShot.coordinates = { x: coordinates.x, y: coordinates.y };
-        // TODO: watch streak resets
-        aiPlayer.lastShot.streak = 1;
-      }
-
-      function isValidTarget(tile, aiPlayer) {
-        return (
-          tile.x >= 0 &&
-          tile.x < 10 &&
-          tile.y >= 0 &&
-          tile.y < 10 &&
-          !aiPlayer.disabledTiles.some(
-            (disabledTile) =>
-              disabledTile.x === tile.x && disabledTile.y === tile.y
-          ) &&
-          !aiPlayer.shotTiles.some(
-            (shotTile) => shotTile.x === tile.x && shotTile.y === tile.y
-          )
-        );
-      }
-
-      function getNextTileInDirection(x, y, direction, increment) {
-        switch (direction) {
-          case 'right':
-            return { x, y: y + increment };
-          case 'left':
-            return { x, y: y - increment };
-          case 'down':
-            return { x: x + increment, y };
-          case 'up':
-            return { x: x - increment, y };
-          default:
-            // If direction is not explicitly set, assume horizontal and vertical based on existing logic
-            return direction === 'horizontal'
-              ? { x, y: y + increment }
-              : { x: x + increment, y };
-        }
-      }
-
       function updateUnsunkShips(aiPlayer, sunkShipLength) {
-        aiPlayer.unsunkShips = aiPlayer.unsunkShips.filter(
-          (length) => length !== sunkShipLength
+        const sunkShip = aiPlayer.unsunkShips.findIndex(
+          (shipLength) => shipLength === sunkShipLength
         );
-      }
-
-      function resetDirectionChecks(aiPlayer) {
-        aiPlayer.checkedRight = false;
-        aiPlayer.checkedUp = false;
-        aiPlayer.checkedDown = false;
-      }
-
-      function checkIfShipIsSunk(aiPlayer) {
-        const { direction, coordinates, streak } = aiPlayer.lastShot;
-
-        if (streak > 1) {
-          // Calculate the positions of the tip and tail of the streak
-          const tip = getNextTileInDirection(
-            coordinates.x,
-            coordinates.y,
-            direction,
-            -streak
-          );
-          const tail = getNextTileInDirection(
-            coordinates.x,
-            coordinates.y,
-            direction,
-            streak
-          );
-
-          // Check if both tip and tail are surrounded by disabled or shot tiles
-          const tipCheck = isTileDisabledOrShot(tip, aiPlayer);
-          const tailCheck = isTileDisabledOrShot(tail, aiPlayer);
-
-          if (tipCheck && tailCheck) {
-            // Update unsunkShips and reset AI to random mode
-            updateUnsunkShips(aiPlayer, streak);
-            aiPlayer.random = true;
-          }
-        }
-      }
-
-      function isTileDisabledOrShot(tile, aiPlayer) {
-        return (
-          aiPlayer.disabledTiles.some(
-            (disabledTile) =>
-              disabledTile.x === tile.x && disabledTile.y === tile.y
-          ) ||
-          aiPlayer.shotTiles.some(
-            (shotTile) => shotTile.x === tile.x && shotTile.y === tile.y
-          )
-        );
+        aiPlayer.unsunkShips.splice(sunkShip, 1);
       }
 
       if (player === this.game.turn) {
@@ -334,7 +164,7 @@ function setController(logic, userInterface) {
           this.view.updateMessages([`Player 1, it's your turn`, `Water...`]);
         }
       }
-      // if single, each player 1 attack should end with a setTimeout that triggers AI attack ---SET THIS BELOW AT THE END OF ATTACK 1 ---
+
       if (this.mode === 'single' && this.game.turn === 2) {
         const attackCoordinates = this.game.getAICoordinates();
         const { x: row, y: column } = attackCoordinates;
@@ -355,58 +185,67 @@ function setController(logic, userInterface) {
             this.view.updateMessages([`Player 1, it's your turn`, `Water...`]);
           }
 
-          // Update AI's last shot memory
+          // ! Update AI's last shot memory
           const aiPlayer = this.game.player2;
           aiPlayer.lastShot.coordinates = {
             x: attackCoordinates.x,
             y: attackCoordinates.y,
           };
+          aiPlayer.lastShot.direction = attackCoordinates.direction;
           aiPlayer.lastShot.hit = result.message === 'hit';
 
+          // * HIT
           if (result.message === 'hit') {
             aiPlayer.random = false;
-            updateDisabledTiles(
+            updateInvalidTiles(
               attackCoordinates.x,
               attackCoordinates.y,
               aiPlayer
             );
-            aiPlayer.lastShot.streak += 1;
+            aiPlayer.currentStreak.tiles.push({
+              coordinates: aiPlayer.lastShot.coordinates,
+            });
             // Check if streak already equal to longest ship
             if (
-              aiPlayer.lastShot.streak === Math.max(...aiPlayer.unsunkShips)
+              aiPlayer.currentStreak.tiles.length ===
+              Math.max(...aiPlayer.unsunkShips)
             ) {
-              // Additional logic if needed, such as switching back to random mode
-              aiPlayer.lastShot.streak = 0;
-              aiPlayer.lastShot.direction = null;
-              checkIfShipIsSunk(aiPlayer);
-              resetDirectionChecks(aiPlayer);
+              updateUnsunkShips(aiPlayer, aiPlayer.currentStreak.tiles.length);
+              aiPlayer.random = true;
+              aiPlayer.lastShot = {
+                hit: false,
+                coordinates: {},
+                direction: null,
+              };
+              aiPlayer.currentStreak = {
+                origin: null,
+                orientation: null,
+                tiles: [],
+                inverseDirectionChecked: false,
+              };
             }
-            // Determine the direction based on previous shot if streak is greater than 1
-            if (aiPlayer.lastShot.streak > 1) {
-              aiPlayer.lastShot.direction = determineDirection(
-                aiPlayer.lastShot.coordinates,
-                aiPlayer.lastShot.previousCoordinates
-              );
-            }
+            // * MISS
           } else {
-            aiPlayer.disabledTiles.push({
+            if (aiPlayer.currentStreak.inverseDirectionChecked) {
+              updateUnsunkShips(aiPlayer, aiPlayer.currentStreak.tiles.length);
+              aiPlayer.random = true;
+              aiPlayer.lastShot = {
+                hit: false,
+                coordinates: {},
+                direction: null,
+              };
+              aiPlayer.currentStreak = {
+                origin: null,
+                orientation: null,
+                tiles: [],
+                inverseDirectionChecked: false,
+              };
+            }
+            aiPlayer.invalidTiles.push({
               x: attackCoordinates.x,
               y: attackCoordinates.y,
             });
-            if (!shouldContinueInCurrentDirectionOrOrientation(aiPlayer)) {
-              aiPlayer.lastShot.streak = 0;
-              aiPlayer.lastShot.direction = null;
-              checkIfShipIsSunk(aiPlayer);
-              resetDirectionChecks(aiPlayer);
-            } else {
-              // Change direction for the next shot
-              aiPlayer.lastShot.coordinates =
-                aiPlayer.lastShot.previousCoordinates;
-              changeDirectionForNextShot(aiPlayer);
-            }
           }
-          // Update the previous coordinates for the next turn
-          aiPlayer.lastShot.previousCoordinates = aiPlayer.lastShot.coordinates;
         }, 1500);
       }
     },

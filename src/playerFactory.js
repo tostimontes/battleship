@@ -16,15 +16,16 @@ async function createPlayer(name = 'AI', number = 1) {
   const player = {
     name,
     number,
-    shotTiles: [],
-    disabledTiles: [],
+    invalidTiles: [],
     random: true,
-    lastShot: { hit: false, coordinates: {}, direction: null, streak: 0 },
-    currentStreak: [], // store current streaks coords
+    lastShot: { hit: false, coordinates: {}, direction: null },
+    currentStreak: {
+      origin: null,
+      orientation: null,
+      tiles: [],
+      inverseDirectionChecked: false,
+    }, // store current streaks coords, first index should be origin tile
     unsunkShips: [5, 4, 3, 3, 2],
-    checkedRight: false,
-    checkedUp: false,
-    checkedDown: false,
     board: createGameboard(),
     attack(xCoord, yCoord) {
       if (onAttack) {
@@ -32,89 +33,175 @@ async function createPlayer(name = 'AI', number = 1) {
       }
     },
     generateRandomAttack() {
-      // Check if AI should shoot randomly
       if (!this.random) {
         // Smart mode: calculate next attack based on last hit
-        const { x, y } = this.lastShot.coordinates;
+        let { x, y } = this.lastShot.coordinates;
         const { direction } = this.lastShot;
-        const { streak } = this.lastShot;
+        const streak = this.currentStreak.tiles.length;
         let possibleCoordinates = [];
 
-        // If only one hit so far, try surrounding tiles
         if (streak === 1) {
+          x = this.currentStreak.tiles[0].coordinates.x;
+          y = this.currentStreak.tiles[0].coordinates.y;
           possibleCoordinates = [
-            { x, y: y - 1 }, // Above
-            { x, y: y + 1 }, // Below
-            { x: x - 1, y }, // Left
-            { x: x + 1, y }, // Right
+            { x, y: y - 1, direction: 'left' },
+            { x, y: y + 1, direction: 'right' },
+            { x: x - 1, y, direction: 'up' },
+            { x: x + 1, y, direction: 'down' },
           ];
-        } else {
-          // Continue in the same direction or the opposite
-          if (
-            direction === 'horizontal' ||
-            direction === 'right' ||
-            direction === 'left'
-          ) {
-            const horizontalIncrement = direction === 'left' ? -1 : 1;
-            possibleCoordinates.push({
-              x,
-              y: y + horizontalIncrement,
-            });
-            possibleCoordinates.push({
-              x,
-              y: y - horizontalIncrement,
-            });
-          } else if (
-            direction === 'vertical' ||
-            direction === 'up' ||
-            direction === 'down'
-          ) {
-            const verticalIncrement = direction === 'up' ? -1 : 1;
-            possibleCoordinates.push({ x: x + verticalIncrement, y });
-            possibleCoordinates.push({ x: x - verticalIncrement, y });
+          let nextCoordinates = possibleCoordinates[0];
+          while (this.isInvalidTile(nextCoordinates)) {
+            possibleCoordinates.shift();
+            nextCoordinates = possibleCoordinates[0];
           }
+          this.invalidTiles.push(nextCoordinates);
+          return nextCoordinates;
         }
-
-        // Filter out invalid or already tried coordinates
-        possibleCoordinates = possibleCoordinates.filter(
-          (coord) =>
-            coord.x >= 0 &&
-            coord.x < 10 &&
-            coord.y >= 0 &&
-            coord.y < 10 &&
-            !this.shotTiles.some(
-              (tile) => tile.x === coord.x && tile.y === coord.y
-            ) &&
-            !this.disabledTiles.some(
-              (tile) => tile.x === coord.x && tile.y === coord.y
-            )
-        );
-
-        // If valid coordinates are found, return the first one
-        if (possibleCoordinates.length > 0) {
-          this.shotTiles.push(possibleCoordinates[0]);
-          return possibleCoordinates[0];
+        if (streak > 1 && this.lastShot.hit) {
+          if (direction === 'left' || direction === 'right') {
+            this.currentStreak.orientation = 'horizontal';
+          } else {
+            this.currentStreak.orientation = 'vertical';
+          }
+          let nextCoordinates;
+          if (direction === 'left') {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x,
+              y: this.lastShot.coordinates.y - 1,
+              direction,
+            };
+          } else if (direction === 'up') {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x - 1,
+              y: this.lastShot.coordinates.y,
+              direction,
+            };
+          } else if (direction === 'right') {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x,
+              y: this.lastShot.coordinates.y + 1,
+              direction,
+            };
+          } else {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x + 1,
+              y: this.lastShot.coordinates.y,
+              direction,
+            };
+          }
+          if (nextCoordinates && !this.isInvalidTile(nextCoordinates)) {
+            this.invalidTiles.push(nextCoordinates);
+            return nextCoordinates;
+          }
+          if (nextCoordinates && this.isInvalidTile(nextCoordinates)) {
+            if (direction === 'left') {
+              nextCoordinates = {
+                x: this.currentStreak.tiles[0].coordinates.x,
+                y: this.currentStreak.tiles[0].coordinates.y + 1,
+                direction: 'right',
+              };
+            } else if (direction === 'up') {
+              nextCoordinates = {
+                x: this.currentStreak.tiles[0].coordinates.x + 1,
+                y: this.currentStreak.tiles[0].coordinates.y,
+                direction: 'down',
+              };
+            }
+            this.currentStreak.inverseDirectionChecked = true;
+          }
+          if (!this.isInvalidTile(nextCoordinates)) {
+            this.invalidTiles.push(nextCoordinates);
+            return nextCoordinates;
+          }
+          const sunkShip = this.unsunkShips.findIndex(
+            (shipLength) => shipLength === this.currentStreak.tiles.length
+          );
+          this.unsunkShips.splice(sunkShip, 1);
+          this.random = true;
+          this.lastShot = { hit: false, coordinates: {}, direction: null };
+          this.currentStreak = {
+            origin: null,
+            orientation: null,
+            tiles: [],
+            inverseDirectionChecked: false,
+          };
+          this.generateRandomAttack();
+        } else if (streak > 1 && !this.lastShot.hit) {
+          let nextCoordinates;
+          if (direction === 'left') {
+            nextCoordinates = {
+              x: this.currentStreak.tiles[0].coordinates.x,
+              y: this.currentStreak.tiles[0].coordinates.y + 1,
+              direction: 'right',
+            };
+          } else if (direction === 'up') {
+            nextCoordinates = {
+              x: this.currentStreak.tiles[0].coordinates.x + 1,
+              y: this.currentStreak.tiles[0].coordinates.y,
+              direction: 'down',
+            };
+          } else if (direction === 'right') {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x,
+              y: this.lastShot.coordinates.y + 1,
+              direction,
+            };
+          } else {
+            nextCoordinates = {
+              x: this.lastShot.coordinates.x + 1,
+              y: this.lastShot.coordinates.y,
+              direction,
+            };
+          }
+          this.currentStreak.inverseDirectionChecked = true;
+          if (!this.isInvalidTile(nextCoordinates)) {
+            this.invalidTiles.push(nextCoordinates);
+            return nextCoordinates;
+          }
+        } else {
+          const sunkShip = this.unsunkShips.findIndex(
+            (shipLength) => shipLength === this.currentStreak.tiles.length
+          );
+          this.unsunkShips.splice(sunkShip, 1);
+          this.random = true;
+          this.lastShot = { hit: false, coordinates: {}, direction: null };
+          this.currentStreak = {
+            origin: null,
+            orientation: null,
+            tiles: [],
+            inverseDirectionChecked: false,
+          };
+          this.generateRandomAttack();
         }
-        // Reset to random mode if no valid smart moves
-        this.random = true;
       }
 
-      // Random mode: Generate random coordinates
-      let xCoord;
-      let yCoord;
+      // * Random mode: Generate random coordinates
+      let newCoordinates;
       do {
-        xCoord = Math.floor(Math.random() * 10);
-        yCoord = Math.floor(Math.random() * 10);
-      } while (
-        this.shotTiles.some((tile) => tile.x === xCoord && tile.y === yCoord) ||
-        this.disabledTiles.some(
-          (tile) => tile.x === xCoord && tile.y === yCoord
-        )
-      );
+        newCoordinates = {
+          x: Math.floor(Math.random() * 10),
+          y: Math.floor(Math.random() * 10),
+          direction: null,
+        };
+      } while (this.isInvalidTile(newCoordinates));
 
-      // Record shot
-      this.shotTiles.push({ x: xCoord, y: yCoord });
-      return { x: xCoord, y: yCoord };
+      this.invalidTiles.push(newCoordinates);
+      return newCoordinates;
+    },
+
+    isInvalidTile(coordinates) {
+      if (
+        coordinates.x < 0 ||
+        coordinates.x >= 10 ||
+        coordinates.y < 0 ||
+        coordinates.y >= 10 ||
+        this.invalidTiles.some(
+          (tile) => tile.x === coordinates.x && tile.y === coordinates.y
+        )
+      ) {
+        return true;
+      }
+      return false;
     },
   };
 
