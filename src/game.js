@@ -1,45 +1,47 @@
 function gameLogic() {
-  let player1;
-  let player2;
   const game = {
     turn: 1,
-    player1,
-    player2,
+    player1: null,
+    player2: null,
     init(playerOne, playerTwo) {
-      player1 = playerOne;
-      player2 = playerTwo;
+      this.player1 = playerOne;
+      this.player2 = playerTwo;
     },
     checkCoordinatesForPlacement(shipName, xCoord, yCoord, orientation) {
       const player = parseInt(shipName.slice(shipName.length - 1));
       const draggingShip = shipName.slice(0, shipName.length - 1);
       let selectedShip;
       if (player === 1) {
-        for (const ship in player1.board.fleet) {
+        for (const ship in this.player1.board.fleet) {
           if (ship === draggingShip) {
-            selectedShip = player1.board.fleet[ship];
+            selectedShip = this.player1.board.fleet[ship];
             break;
           }
         }
-        return player1.board.placeShip(
+        return this.player1.board.placeShip(
           selectedShip,
           xCoord,
           yCoord,
           orientation
         );
       }
-      for (const ship in player2.board.fleet) {
+      for (const ship in this.player2.board.fleet) {
         if (ship === draggingShip) {
-          selectedShip = player2.board.fleet[ship];
+          selectedShip = this.player2.board.fleet[ship];
           break;
         }
       }
-      return player2.board.placeShip(selectedShip, xCoord, yCoord, orientation);
+      return this.player2.board.placeShip(selectedShip, xCoord, yCoord, orientation);
+    },
+    getAICoordinates() {
+      const aiAttackCoordinates = this.player2.generateRandomAttack();
+      return aiAttackCoordinates;
     },
     handleAttack(player, xCoord, yCoord) {
       if (player === 1) {
-        return player2.board.receiveAttack(xCoord, yCoord);
+        return this.player2.board.receiveAttack(xCoord, yCoord);
       }
-      return player1.board.receiveAttack(xCoord, yCoord);
+      return this.player1.board.receiveAttack(xCoord, yCoord);
     },
     nextTurn() {
       if (this.turn === 1) {
@@ -51,26 +53,13 @@ function gameLogic() {
     },
     checkWin(player) {
       if (player === 1) {
-        if (!player2.board.anyShipRemains()) {
+        if (!this.player2.board.anyShipRemains()) {
           return true;
         }
-      } else if (!player1.board.anyShipRemains()) {
+      } else if (!this.player1.board.anyShipRemains()) {
         return true;
       }
       return false;
-    },
-    placeShipsForTesting() {
-      player1.board.placeShip(player1.board.fleet.cruiser, 0, 0, 'vertical');
-      player1.board.placeShip(player1.board.fleet.carrier, 0, 2, 'vertical');
-      player1.board.placeShip(player1.board.fleet.battleship, 0, 4, 'vertical');
-      player1.board.placeShip(player1.board.fleet.submarine, 0, 6, 'vertical');
-      player1.board.placeShip(player1.board.fleet.destroyer, 9, 5, 'vertical');
-
-      player2.board.placeShip(player2.board.fleet.cruiser, 0, 0, 'vertical');
-      player2.board.placeShip(player2.board.fleet.carrier, 0, 2, 'vertical');
-      player2.board.placeShip(player2.board.fleet.battleship, 0, 4, 'vertical');
-      player2.board.placeShip(player2.board.fleet.submarine, 0, 6, 'vertical');
-      player2.board.placeShip(player2.board.fleet.destroyer, 9, 5, 'vertical');
     },
   };
   return game;

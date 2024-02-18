@@ -25,21 +25,13 @@ async function startGame() {
   // Initialize the game with players
   game.init(player1, player2);
 
-  // * Hard code fleet to test all else
-  // game.placeShipsForTesting();
-  
-  // Set up UI event listeners
-  
-  controller.promptShipPlacement(playerMode);
-  
-  // make this async or something so that no tiles trigger anything before placement
-  view.setUpEventListeners(controller);
+  controller.promptShipPlacement(playerMode).then(() => {
+    view.setUpEventListeners(controller);
+  });
 
-  // Prompt player 1 to place ships
-  // TODO 4) Random ship placement button + function
-  // TODO 5) make AI smart (if hit > check vertical and horizontal)
-  // TODO 6) style (pixel title, pixel generated background)
-
+  // TODO 5) make AI smart  and set timeouts between turns (if hit > check vertical and horizontal)
+  // TODO 6) style (pixel title, pixel generated background), <kbd> for space and R key
+  // TODO 7) add PASS DEVICE dialog that covers whole screen until closed
 }
 
 startGame();

@@ -76,7 +76,6 @@ function setGameUI() {
       }
     },
     updateMessages(message) {
-      // TODO: change result.message. Maybe this method should only take one argument message, which should always be an object with two properties, one for each player
       player1Message.textContent = message[0];
       player2Message.textContent = message[1];
     },
@@ -84,8 +83,6 @@ function setGameUI() {
     displayModeSelection() {
       return new Promise((resolve) => {
         document.addEventListener('DOMContentLoaded', () => {
-          // Player creation
-          // TODO: add form validation
           let playerMode;
           playerModeDialog.showModal();
           playerModeDialog
@@ -112,10 +109,12 @@ function setGameUI() {
         player1Selection
           .querySelector('button')
           .addEventListener('click', () => {
-            const player1Name = player1Selection.querySelector('input').value;
-            player1Div.querySelector('h2').textContent = player1Name;
-            player1Selection.close();
-            resolve(player1Name);
+            if (player1Selection.querySelector('input').value !== '') {
+              const player1Name = player1Selection.querySelector('input').value;
+              player1Div.querySelector('h2').textContent = player1Name;
+              player1Selection.close();
+              resolve(player1Name);
+            }
           });
       });
     },
@@ -126,16 +125,19 @@ function setGameUI() {
         player2Selection
           .querySelector('button')
           .addEventListener('click', () => {
-            const player2Name = player2Selection.querySelector('input').value;
-            player2Div.querySelector('h2').textContent = player2Name;
-            player2Selection.close();
-            resolve(player2Name);
+            if (player2Selection.querySelector('input').value !== '') {
+              const player2Name = player2Selection.querySelector('input').value;
+              player2Div.querySelector('h2').textContent = player2Name;
+              player2Selection.close();
+              resolve(player2Name);
+            }
           });
       });
     },
 
     setUpEventListeners(controller) {
       // Tile listeners
+      // TODO: disable already clicked tiles from being clicked again
       player2Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
