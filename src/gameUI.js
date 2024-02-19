@@ -163,15 +163,15 @@ function setGameUI() {
     displayShipPlacementDialog(player) {
       if (player === 1) {
         shipPlacementDialog.style.left = '75%';
-        shipPlacementDialog.style.top = '60%';
-        shipPlacementDialog.style.width = '63rem';
-        shipPlacementDialog.style.height = '55rem';
+        shipPlacementDialog.style.top = '50%';
+        shipPlacementDialog.style.width = '50%';
+        shipPlacementDialog.style.height = '80%';
         shipPlacementDialog.style.padding = '2rem';
       } else {
         shipPlacementDialog.style.left = '25%';
-        shipPlacementDialog.style.top = '60%';
-        shipPlacementDialog.style.width = '63rem';
-        shipPlacementDialog.style.height = '55rem';
+        shipPlacementDialog.style.top = '50%';
+        shipPlacementDialog.style.width = '50%';
+        shipPlacementDialog.style.height = '80%';
         shipPlacementDialog.style.padding = '2rem';
       }
       shipPlacementDialog.style.zIndex = 3;
@@ -221,7 +221,9 @@ function setGameUI() {
               player1Fleet.forEach((ship) => {
                 ship.style.zIndex = -1;
               });
-              player1grid.classList.toggle('alternate-color');
+              if (!player1grid.classList.contains('alternate-color')) {
+                player1grid.classList.toggle('alternate-color');
+              }
               resolve();
             }
           }
@@ -310,7 +312,7 @@ function setGameUI() {
         shipImage.style.left = `${left}px`;
         shipImage.style.width = `${right - left}px`;
         shipImage.style.height = `${bottom - top}px`;
-        shipImage.style.backgroundSize = 'cover';
+        shipImage.style.objectFit = 'fill';
       } else {
         shipImage.style.position = 'fixed';
         shipImage.style.zIndex = 3;
@@ -318,7 +320,7 @@ function setGameUI() {
         shipImage.style.left = `${lastTile.getBoundingClientRect().right}px`;
         shipImage.style.width = `${bottom - top}px`;
         shipImage.style.height = `${right - left}px`;
-        shipImage.style.backgroundSize = 'cover';
+        shipImage.style.objectFit = 'fill';
         shipImage.style.transformOrigin = 'top left';
       }
     },
@@ -358,7 +360,6 @@ function setGameUI() {
       } else {
         winMessage.textContent = 'Player 2 won!';
         result2.textContent = score.toString();
-        // TODO: check above
       }
       playAgainButton.addEventListener('click', () => {
         controller.resetGame();
@@ -372,6 +373,7 @@ function setGameUI() {
           ship.classList.toggle('horizontal');
           ship.classList.toggle('vertical');
         }
+        ship.classList.remove('placed');
         ship.style.cssText = '';
       });
       player2Fleet.forEach((ship) => {
@@ -379,6 +381,7 @@ function setGameUI() {
           ship.classList.toggle('horizontal');
           ship.classList.toggle('vertical');
         }
+        ship.classList.remove('placed');
         ship.style.cssText = '';
       });
       player1Tiles.forEach((tile) => {

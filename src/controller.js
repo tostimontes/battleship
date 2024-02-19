@@ -96,6 +96,7 @@ function setController(logic, userInterface) {
                 `Player 1, it's your turn`,
                 `It's player 1's turn`,
               ]);
+              document.removeEventListener('keydown', player2Handler);
               resolve();
               this.view.displayNextTurn(1);
             });
@@ -253,13 +254,16 @@ function setController(logic, userInterface) {
       this.game.player1.board.resetGrid();
       this.game.player2.board.resetGrid();
       this.game.turn = 1;
+      this.game.player1.board.resetHits();
+      this.game.player2.board.resetHits();
       if (this.mode === 'single') {
         this.game.player2.unsunkShips = [5, 4, 3, 3, 2];
       }
 
       this.view.resetFleetAndGrid();
-      this.promptShipPlacement(this.mode);
-      // TODO: add close
+      this.promptShipPlacement(this.mode).then(() => {
+        this.view.setUpEventListeners(controller);
+      });
     },
   };
 

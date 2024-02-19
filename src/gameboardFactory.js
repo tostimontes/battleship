@@ -188,10 +188,16 @@ const createGameboard = () => {
     },
 
     resetGrid() {
-      for (let row of grid) {
-        for (let column of row) {
-          column = undefined;
+      for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid[i].length; j++) {
+          grid[i][j] = undefined;
         }
+      }
+    },
+
+    resetHits() {
+      for (const ship in this.fleet) {
+        this.fleet[ship].timesHit = 0;
       }
     },
   };

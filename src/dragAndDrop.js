@@ -50,6 +50,15 @@ function makeDraggable(ship, controller) {
   let initialY;
   let isDragging = false;
 
+  const keydownHandler = function (e) {
+    if (
+      (e.key === 'r' || e.key === 'R') &&
+      ship.classList.contains('dragging')
+    ) {
+      toggleRotation(ship);
+    }
+  };
+
   ship.addEventListener('mousedown', function (e) {
     if (ship.classList.contains('placed')) {
       return;
@@ -63,6 +72,8 @@ function makeDraggable(ship, controller) {
 
     ship.style.position = 'absolute';
     ship.classList.add('dragging');
+
+    document.addEventListener('keydown', keydownHandler);
   });
 
   document.addEventListener('mousemove', function (e) {
@@ -72,16 +83,6 @@ function makeDraggable(ship, controller) {
     if (isDragging) {
       ship.style.left = `${e.clientX - initialX}px`;
       ship.style.top = `${e.clientY - initialY}px`;
-
-      document.addEventListener('keydown', function (e) {
-        if (
-          (e.key === 'r' || e.key === 'R') &&
-          document.querySelector('.dragging')
-        ) {
-          const draggingShip = document.querySelector('.dragging');
-          toggleRotation(draggingShip);
-        }
-      });
     }
   });
 
@@ -98,6 +99,8 @@ function makeDraggable(ship, controller) {
         orientation = 'vertical';
       }
       ship.classList.remove('dragging');
+      document.removeEventListener('keydown', keydownHandler);
+
       const player = parseInt(ship.id.slice(ship.id.length - 1));
       let grid;
       player === 1 ? (grid = player1Tiles) : (grid = player2Tiles);

@@ -28,10 +28,6 @@ async function startGame() {
   controller.promptShipPlacement(playerMode).then(() => {
     view.setUpEventListeners(controller);
   });
-
-  // TODO 6) style (pixel title, pixel generated background), <kbd> for space and R key
-  // Add layer, specially in fleet and message boxes (maybe semitransparent rounded background)
-  // TODO: add rejects and error handling to Promises
 }
 
 startGame();

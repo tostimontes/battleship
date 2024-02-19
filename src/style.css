@@ -56,7 +56,6 @@ dialog {
   }
 }
 
-/* TODO: win dialog styling */
 
 label {
   font-size: 2.5rem;
@@ -96,7 +95,7 @@ input[type='text'] {
 button {
   width: fit-content;
   height: fit-content;
-  padding: .7rem;
+  padding: 0.7rem;
   border-radius: 1rem;
   border: none;
   font-size: 1.6rem;
@@ -221,8 +220,8 @@ kbd {
 
 .ship {
   background-size: contain;
-  background-position: center; /* Center the image within the element */
-  background-repeat: no-repeat; /* Do not repeat the image */
+  background-position: center;
+  background-repeat: no-repeat;
   width: 100%;
   height: 100%;
   z-index: 2;
@@ -291,7 +290,13 @@ kbd {
   grid-template: repeat(11, minmax(25px, 1fr)) / repeat(11, minmax(25px, 1fr));
   width: 80%;
   height: 100%;
+  background-color: #00bcd4;
+  }
+
+.gameboard-grid .label {
+  background-color: rgba(255, 255, 255, 0.572);
 }
+
 
 .label {
   width: 100%;
