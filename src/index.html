@@ -12,11 +12,11 @@
       <form method="dialog">
         <p>Choose player mode:</p>
         <label
-          ><input type="radio" name="player-mode" value="single" />Single
+          ><input type="radio" name="player-mode" value="single" /> Single
           player</label
         >
         <label
-          ><input type="radio" name="player-mode" value="two" />Two
+          ><input type="radio" name="player-mode" value="two" /> Two
           players</label
         >
         <button type="button">Play!</button>
@@ -26,7 +26,7 @@
     <dialog id="player1-name-dialog">
       <form method="dialog">
         <p>Choose name for player 1</p>
-        <label for="player1-name">Name:</label>
+        <label for="player1-name"></label>
         <input
           type="text"
           id="player1-name"
@@ -37,32 +37,46 @@
       </form>
     </dialog>
 
+    
     <dialog id="player2-name-dialog">
       <form method="dialog">
         <p>Choose name for player 2</p>
-        <label for="player2-name">Name:</label>
+        <label for="player2-name"></label>
         <input
-          type="text"
-          id="player2-name"
-          name="player2-name"
-          placeholder="Enter player 2 name"
-          required
+        type="text"
+        id="player2-name"
+        name="player2-name"
+        placeholder="Enter player 2 name"
+        required
         />
         <button type="button">Play!</button>
+      </form>
+    </dialog>
+    
+    <dialog id="ship-placement-dialog">
+      <form method="dialog">
+        <p>Drag and drop the ships.<br>Press <kbd>R</kbd> while dragging to rotate.<br>Press <kbd>SPACE</kbd> (before placing any ship) to place fleet randomly</p>
+      </form>
+    </dialog>
+
+    <dialog id="pass-device-dialog">
+      <form method="dialog">
+        <p>Pass the device!</p>
+        <button type="button">Continue</button>
       </form>
     </dialog>
 
     <dialog id="game-over-dialog">
       <form method="dialog">
-        <p></p>
+        <p>Hola</p>
         <button type="button">Play Again?</button>
       </form>
     </dialog>
 
-    <h1 id="title">Battleship</h1>
+    <div id="title"></div>
     <div id="gameboards">
       <div class="gameboard-divs" id="player1div">
-      <h2>player 1</h2>
+      <h2>Player 1</h2><span id="result1">0</span>
       <div class="board-and-deck-container">
         <div class="gameboard-grid" id="player1grid">
           <div class="labels top-labels">
@@ -222,9 +236,8 @@
       </div>
         <div class="message-box">This is the message box of player 1</div>
     </div>
-
     <div class="gameboard-divs" id="player2div">
-      <h2>player 2</h2>
+      <h2>Player 2</h2><span id="result2">0</span>
       <div class="board-and-deck-container">
         <div class="gameboard-grid" id="player2grid">
           <div class="labels top-labels">

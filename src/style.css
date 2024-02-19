@@ -14,22 +14,39 @@
     format('truetype');
 }
 
+@font-face {
+  font-family: 'Joystix';
+  src: url(../media/Fonts/joystix\ monospace.otf) format('opentype');
+}
+
 body {
   font-size: 1.6rem;
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url(../media/bg2.webp) no-repeat center center;
+  background-size: cover;
 }
-
 dialog {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 30rem;
-  height: 20rem;
+  width: 45rem;
+  height: 30rem;
+  border-radius: 1rem;
+  background-color: aquamarine;
+  font-family: 'Joystix';
+  color: rgb(232, 172, 20);
+  text-align: center;
+  text-shadow: 2px 2px rgb(118, 118, 118);
+  font-size: 2.6rem;
   > form {
+    width: 100%;
+    height: 100%;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -39,11 +56,108 @@ dialog {
   }
 }
 
+/* TODO: win dialog styling */
+
+label {
+  font-size: 2.5rem;
+}
+
+h2,
+span {
+  font-family: 'Joystix';
+  color: rgb(232, 172, 20);
+  text-align: center;
+  text-shadow: 2px 2px rgb(118, 118, 118);
+  font-size: 3rem;
+}
+
+span {
+  border: 2px ridge black;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: aliceblue;
+}
+
+p {
+  font-size: 3rem;
+  letter-spacing: 0.3rem;
+}
+
+input[type='text'] {
+  width: 20rem;
+  height: 3rem;
+  font-family: monospace;
+  padding: 0.5rem;
+}
+
+button {
+  width: fit-content;
+  height: fit-content;
+  padding: .7rem;
+  border-radius: 1rem;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  background-color: #00bcd4;
+  box-shadow: 1px 1px 3px black;
+  color: rgb(232, 172, 20);
+  text-align: center;
+  text-shadow: 2px 2px rgb(118, 118, 118);
+  font-size: 2rem;
+  font-family: 'Joystix';
+}
+
+kbd {
+  padding: 5px 8px;
+  font-family: Arial, sans-serif;
+  font-size: 0.85em;
+  background-color: #f7f7f7;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  box-shadow:
+    0 1px 0 #fff,
+    0 2px 0 #bbb;
+  border-radius: 3px;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+}
+
+#pass-device-dialog {
+  width: 100%;
+  height: 100%;
+  > form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
 #title {
   margin-top: 2rem;
   width: 100%;
   height: 10%;
   text-align: center;
+  background: url(../media/pixel-title.png) no-repeat center center;
+  background-size: contain;
+}
+
+.message-box {
+  width: 90%;
+  height: 100%;
+  background-color: rgba(240, 248, 255, 0.72);
+  border-radius: 5px;
+  font-size: 1.5rem;
+  font-family: 'Joystix';
+  color: rgb(232, 172, 20);
+  text-align: center;
+  text-shadow: 2px 2px rgb(118, 118, 118);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #gameboards {
@@ -57,7 +171,7 @@ dialog {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   width: 50%;
   height: 100%;
 }
