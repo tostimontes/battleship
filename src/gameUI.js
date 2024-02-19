@@ -1,6 +1,5 @@
 import './style.css';
 import makeDraggable from './dragAndDrop.js';
-// TODO: add rejects and error handling to Promises
 
 function mapTileToCoordinates(tile) {
   const letterToNumber = {
@@ -28,7 +27,11 @@ function mapCoordinatesToTile(row, column) {
 
 function setGameUI() {
   const player1Div = document.querySelector('#player1div');
+  const player1Name = player1Div.querySelector('h2');
+  const result1 = player1Div.querySelector('span');
   const player2Div = document.querySelector('#player2div');
+  const player2Name = player2Div.querySelector('h2');
+  const result2 = player2Div.querySelector('span');
   const player1grid = document.querySelector('#player1grid');
   const player2grid = document.querySelector('#player2grid');
   const player1Tiles = Array.from(
@@ -40,6 +43,7 @@ function setGameUI() {
   const playerModeDialog = document.querySelector('#player-mode-dialog');
   const player1Selection = document.querySelector('#player1-name-dialog');
   const player2Selection = document.querySelector('#player2-name-dialog');
+  const shipPlacementDialog = document.querySelector('#ship-placement-dialog');
   const player1Fleet = document
     .querySelector('#player1fleet')
     .querySelectorAll('.ship');
@@ -49,6 +53,7 @@ function setGameUI() {
   const player1Message = player1Div.querySelector('.message-box');
   const player2Message = player2Div.querySelector('.message-box');
   const gameOverDialog = document.querySelector('#game-over-dialog');
+  const passDeviceDialog = document.querySelector('#pass-device-dialog');
   const winMessage = gameOverDialog.querySelector('p');
   const playAgainButton = gameOverDialog.querySelector('button');
   const ships = document.querySelectorAll('.ship');
@@ -76,8 +81,8 @@ function setGameUI() {
       }
     },
     updateMessages(message) {
-      player1Message.textContent = message[0];
-      player2Message.textContent = message[1];
+      player1Message.innerHTML = message[0];
+      player2Message.innerHTML = message[1];
     },
 
     displayModeSelection() {
@@ -85,6 +90,11 @@ function setGameUI() {
         document.addEventListener('DOMContentLoaded', () => {
           let playerMode;
           playerModeDialog.showModal();
+          window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+            }
+          });
           playerModeDialog
             .querySelector('button')
             .addEventListener('click', () => {
@@ -92,7 +102,8 @@ function setGameUI() {
                 playerModeDialog.querySelector('input[value="single"]').checked
               ) {
                 playerMode = 'single';
-                player2Div.querySelector('h2').textContent = 'AI';
+                player2Name.textContent = 'AI';
+                result2.textContent = '0';
               } else {
                 playerMode = 'two';
               }
@@ -106,12 +117,19 @@ function setGameUI() {
     displayPlayer1Selection() {
       return new Promise((resolve) => {
         player1Selection.showModal();
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+          }
+        });
+
         player1Selection
           .querySelector('button')
           .addEventListener('click', () => {
             if (player1Selection.querySelector('input').value !== '') {
-              const player1Name = player1Selection.querySelector('input').value;
-              player1Div.querySelector('h2').textContent = player1Name;
+              const nameInput1 = player1Selection.querySelector('input').value;
+              player1Name.textContent = nameInput1;
+              result1.textContent = '0';
               player1Selection.close();
               resolve(player1Name);
             }
@@ -122,12 +140,19 @@ function setGameUI() {
     displayPlayer2Selection() {
       return new Promise((resolve) => {
         player2Selection.showModal();
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+          }
+        });
+
         player2Selection
           .querySelector('button')
           .addEventListener('click', () => {
             if (player2Selection.querySelector('input').value !== '') {
-              const player2Name = player2Selection.querySelector('input').value;
-              player2Div.querySelector('h2').textContent = player2Name;
+              const nameInput2 = player2Selection.querySelector('input').value;
+              player2Name.textContent = nameInput2;
+              result2.textContent = '0';
               player2Selection.close();
               resolve(player2Name);
             }
@@ -135,19 +160,49 @@ function setGameUI() {
       });
     },
 
+    displayShipPlacementDialog(player) {
+      if (player === 1) {
+        shipPlacementDialog.style.left = '75%';
+        shipPlacementDialog.style.top = '60%';
+        shipPlacementDialog.style.width = '63rem';
+        shipPlacementDialog.style.height = '55rem';
+        shipPlacementDialog.style.padding = '2rem';
+      } else {
+        shipPlacementDialog.style.left = '25%';
+        shipPlacementDialog.style.top = '60%';
+        shipPlacementDialog.style.width = '63rem';
+        shipPlacementDialog.style.height = '55rem';
+        shipPlacementDialog.style.padding = '2rem';
+      }
+      shipPlacementDialog.style.zIndex = 3;
+      shipPlacementDialog.show();
+    },
+
+    closeShipPlacementDialog() {
+      shipPlacementDialog.close();
+    },
+
     setUpEventListeners(controller) {
-      // Tile listeners
-      // TODO: disable already clicked tiles from being clicked again
       player2Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
-          controller.handlePlayerAttack(1, gridCoords[0], gridCoords[1]);
+          if (
+            !tile.classList.contains('hit') &&
+            !tile.classList.contains('missed')
+          ) {
+            controller.handlePlayerAttack(1, gridCoords[0], gridCoords[1]);
+          }
         });
       });
       player1Tiles.forEach((tile) => {
         const gridCoords = mapTileToCoordinates(tile);
         tile.addEventListener('click', () => {
-          controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
+          if (
+            !tile.classList.contains('hit') &&
+            !tile.classList.contains('missed')
+          ) {
+            controller.handlePlayerAttack(2, gridCoords[0], gridCoords[1]);
+          }
         });
       });
     },
@@ -288,15 +343,53 @@ function setGameUI() {
       player2grid.classList.toggle('alternate-color');
     },
 
-    showWinMessage(player, controller) {
+    showPassDeviceDialog() {
+      passDeviceDialog.showModal();
+      passDeviceDialog.querySelector('button').addEventListener('click', () => {
+        passDeviceDialog.close();
+      });
+    },
+
+    showWinMessage(player, controller, score) {
       gameOverDialog.showModal();
       if (player === 1) {
         winMessage.textContent = 'Player 1 won!';
+        result1.textContent = score.toString();
       } else {
         winMessage.textContent = 'Player 2 won!';
+        result2.textContent = score.toString();
+        // TODO: check above
       }
       playAgainButton.addEventListener('click', () => {
         controller.resetGame();
+        gameOverDialog.close();
+      });
+    },
+
+    resetFleetAndGrid() {
+      player1Fleet.forEach((ship) => {
+        if (ship.classList.contains('horizontal')) {
+          ship.classList.toggle('horizontal');
+          ship.classList.toggle('vertical');
+        }
+        ship.style.cssText = '';
+      });
+      player2Fleet.forEach((ship) => {
+        if (ship.classList.contains('horizontal')) {
+          ship.classList.toggle('horizontal');
+          ship.classList.toggle('vertical');
+        }
+        ship.style.cssText = '';
+      });
+      player1Tiles.forEach((tile) => {
+        if (tile.classList.length > 2) {
+          tile.classList.remove(tile.classList[2]);
+        }
+      });
+      player2Tiles.forEach((tile) => {
+        if (tile.classList.length > 2) {
+          tile.classList.remove(tile.classList[2]);
+        }
       });
     },
   };

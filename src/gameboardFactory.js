@@ -186,6 +186,14 @@ const createGameboard = () => {
       }
       return false;
     },
+
+    resetGrid() {
+      for (let row of grid) {
+        for (let column of row) {
+          column = undefined;
+        }
+      }
+    },
   };
   return board;
 };

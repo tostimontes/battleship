@@ -29,9 +29,9 @@ async function startGame() {
     view.setUpEventListeners(controller);
   });
 
-  // TODO 5) make AI smart  and set timeouts between turns (if hit > check vertical and horizontal)
   // TODO 6) style (pixel title, pixel generated background), <kbd> for space and R key
-  // TODO 7) add PASS DEVICE dialog that covers whole screen until closed
+  // Add layer, specially in fleet and message boxes (maybe semitransparent rounded background)
+  // TODO: add rejects and error handling to Promises
 }
 
 startGame();

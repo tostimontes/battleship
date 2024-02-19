@@ -1,18 +1,6 @@
 import createGameboard from './gameboardFactory.js';
 
 async function createPlayer(name = 'AI', number = 1) {
-  if (name === 'AI') {
-    // TODO: shouldn't aim at disabled tiles
-    // TODO: if hit registered, create algorithm to play intelligently, it should first aim at either vertical or horizontal
-    // shoot randomly until hit
-    // if hit, shoot vertical or horizontal + generate disabled
-    // if top or bottom row, prioritize horizontal
-    // if left or right column, prioritize vertical
-    // if hit same ship, continue line until water
-    // if ship of more length still not sunk ==>
-    // if water, continue other direction
-  }
-
   const player = {
     name,
     number,
@@ -24,14 +12,38 @@ async function createPlayer(name = 'AI', number = 1) {
       orientation: null,
       tiles: [],
       inverseDirectionChecked: false,
-    }, // store current streaks coords, first index should be origin tile
+    },
     unsunkShips: [5, 4, 3, 3, 2],
+    score: 0,
     board: createGameboard(),
     attack(xCoord, yCoord) {
       if (onAttack) {
         onAttack(number, xCoord, yCoord);
       }
     },
+
+    resetToRandomMode() {
+      this.random = true;
+      this.lastShot = {
+        hit: false,
+        coordinates: {},
+        direction: null,
+      };
+      this.currentStreak = {
+        origin: null,
+        orientation: null,
+        tiles: [],
+        inverseDirectionChecked: false,
+      };
+    },
+
+    updateUnsunkShips() {
+      const sunkShip = this.unsunkShips.findIndex(
+        (shipLength) => shipLength === this.currentStreak.tiles.length
+      );
+      this.unsunkShips.splice(sunkShip, 1);
+    },
+
     generateRandomAttack() {
       if (!this.random) {
         // Smart mode: calculate next attack based on last hit
@@ -113,18 +125,8 @@ async function createPlayer(name = 'AI', number = 1) {
             this.invalidTiles.push(nextCoordinates);
             return nextCoordinates;
           }
-          const sunkShip = this.unsunkShips.findIndex(
-            (shipLength) => shipLength === this.currentStreak.tiles.length
-          );
-          this.unsunkShips.splice(sunkShip, 1);
-          this.random = true;
-          this.lastShot = { hit: false, coordinates: {}, direction: null };
-          this.currentStreak = {
-            origin: null,
-            orientation: null,
-            tiles: [],
-            inverseDirectionChecked: false,
-          };
+          this.updateUnsunkShips();
+          this.resetToRandomMode();
           this.generateRandomAttack();
         } else if (streak > 1 && !this.lastShot.hit) {
           let nextCoordinates;
@@ -163,14 +165,8 @@ async function createPlayer(name = 'AI', number = 1) {
             (shipLength) => shipLength === this.currentStreak.tiles.length
           );
           this.unsunkShips.splice(sunkShip, 1);
-          this.random = true;
-          this.lastShot = { hit: false, coordinates: {}, direction: null };
-          this.currentStreak = {
-            origin: null,
-            orientation: null,
-            tiles: [],
-            inverseDirectionChecked: false,
-          };
+          this.resetToRandomMode();
+
           this.generateRandomAttack();
         }
       }

@@ -5,6 +5,15 @@ function setController(logic, userInterface) {
     mode: '',
 
     placeFleetRandomly(player) {
+      if (
+        Array.from(
+          document
+            .getElementById(`player${player}fleet`)
+            .querySelectorAll('.ship')
+        ).some((ship) => ship.classList.contains('placed'))
+      ) {
+        return;
+      }
       document
         .getElementById(`player${player}fleet`)
         .querySelectorAll('.ship')
@@ -43,11 +52,6 @@ function setController(logic, userInterface) {
         });
     },
     promptShipPlacement(playerMode) {
-      this.mode = playerMode;
-      this.view.updateMessages([
-        'Player 1, place your fleet. Drag and drop the ships. Press R while dragging to rotate. Press SPACE to place fleet randomly',
-        'Wait for player 1 to place fleet',
-      ]);
       function createKeyDownHandler(player, controller) {
         return function (event) {
           if (event.code === 'Space') {
@@ -55,11 +59,18 @@ function setController(logic, userInterface) {
           }
         };
       }
+      this.mode = playerMode;
+      this.view.displayShipPlacementDialog(1);
+      this.view.updateMessages([
+        'Player 1, place your fleet.',
+        'Wait for player 1 to place fleet',
+      ]);
       const player1Handler = createKeyDownHandler(1, this);
       document.addEventListener('keydown', player1Handler);
 
       return new Promise((resolve) => {
         this.view.makeShipsDraggable(1, controller).then(() => {
+          this.view.closeShipPlacementDialog();
           if (playerMode === 'single') {
             this.placeFleetRandomly(2);
             this.view.updateMessages([
@@ -72,13 +83,15 @@ function setController(logic, userInterface) {
           } else {
             this.view.updateMessages([
               'Wait for player 2 to place fleet',
-              'Player 2, place your fleet.  Drag and drop the ships. Press R while dragging to rotate. Press SPACE to place fleet randomly',
+              'Player 2, place your fleet.',
             ]);
+            this.view.displayShipPlacementDialog(2);
             document.removeEventListener('keydown', player1Handler);
             const player2Handler = createKeyDownHandler(2, this);
             document.addEventListener('keydown', player2Handler);
 
             this.view.makeShipsDraggable(2, controller).then(() => {
+              this.view.closeShipPlacementDialog();
               this.view.updateMessages([
                 `Player 1, it's your turn`,
                 `It's player 1's turn`,
@@ -131,21 +144,33 @@ function setController(logic, userInterface) {
         });
       }
 
-      function updateUnsunkShips(aiPlayer, sunkShipLength) {
-        const sunkShip = aiPlayer.unsunkShips.findIndex(
-          (shipLength) => shipLength === sunkShipLength
-        );
-        aiPlayer.unsunkShips.splice(sunkShip, 1);
-      }
-
       if (player === this.game.turn) {
         const result = this.game.handleAttack(player, xCoord, yCoord);
         this.view.updateBoard(player, xCoord, yCoord, result);
         if (this.game.checkWin(player)) {
-          this.view.showWinMessage(player, controller);
+          if (player === 1) {
+            this.game.player1.score += 1;
+            this.view.showWinMessage(
+              player,
+              controller,
+              this.game.player1.score
+            );
+          } else {
+            this.game.player2.score += 1;
+            this.view.showWinMessage(
+              player,
+              controller,
+              this.game.player2.score
+            );
+          }
           return;
         }
-        this.view.displayNextTurn(this.game.nextTurn());
+        if (this.mode === 'two') {
+          this.view.showPassDeviceDialog();
+          this.view.displayNextTurn(this.game.nextTurn());
+        } else {
+          this.game.nextTurn();
+        }
         if (result.message === 'hit') {
           if (player === 1) {
             this.view.updateMessages([
@@ -172,10 +197,12 @@ function setController(logic, userInterface) {
           const result = this.game.handleAttack(2, row, column);
           this.view.updateBoard(2, row, column, result);
           if (this.game.checkWin(2)) {
-            this.view.showWinMessage(2, controller);
+            this.game.player2.score += 1;
+            this.view.showWinMessage(2, controller, this.game.player2.score);
             return;
           }
-          this.view.displayNextTurn(this.game.nextTurn());
+          // this.view.displayNextTurn(this.game.nextTurn());
+          this.game.nextTurn();
           if (result.message === 'hit') {
             this.view.updateMessages([
               `Player 1, it's your turn`,
@@ -210,49 +237,29 @@ function setController(logic, userInterface) {
               aiPlayer.currentStreak.tiles.length ===
               Math.max(...aiPlayer.unsunkShips)
             ) {
-              updateUnsunkShips(aiPlayer, aiPlayer.currentStreak.tiles.length);
-              aiPlayer.random = true;
-              aiPlayer.lastShot = {
-                hit: false,
-                coordinates: {},
-                direction: null,
-              };
-              aiPlayer.currentStreak = {
-                origin: null,
-                orientation: null,
-                tiles: [],
-                inverseDirectionChecked: false,
-              };
+              aiPlayer.updateUnsunkShips();
+              aiPlayer.resetToRandomMode();
             }
             // * MISS
-          } else {
-            if (aiPlayer.currentStreak.inverseDirectionChecked) {
-              updateUnsunkShips(aiPlayer, aiPlayer.currentStreak.tiles.length);
-              aiPlayer.random = true;
-              aiPlayer.lastShot = {
-                hit: false,
-                coordinates: {},
-                direction: null,
-              };
-              aiPlayer.currentStreak = {
-                origin: null,
-                orientation: null,
-                tiles: [],
-                inverseDirectionChecked: false,
-              };
-            }
-            aiPlayer.invalidTiles.push({
-              x: attackCoordinates.x,
-              y: attackCoordinates.y,
-            });
+          } else if (aiPlayer.currentStreak.inverseDirectionChecked) {
+            aiPlayer.updateUnsunkShips();
+            aiPlayer.resetToRandomMode();
           }
         }, 1500);
       }
     },
 
     resetGame() {
-      // reset all fleet
-      // Wipe UI (textContent, not listeners)
+      this.game.player1.board.resetGrid();
+      this.game.player2.board.resetGrid();
+      this.game.turn = 1;
+      if (this.mode === 'single') {
+        this.game.player2.unsunkShips = [5, 4, 3, 3, 2];
+      }
+
+      this.view.resetFleetAndGrid();
+      this.promptShipPlacement(this.mode);
+      // TODO: add close
     },
   };
 
