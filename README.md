@@ -15,6 +15,7 @@ This Battleship game is a part of the JavaScript curriculum at [The Odin Project
 - **Asynchronous JavaScript**: The game extensively uses asynchronous functions to handle events like ship placement, AI attacks, and dialog prompts, providing a smooth and responsive user experience.
 - **Smart AI Opponent**: The AI, while not completely smart, is designed to continue shooting at adjacent tiles once it registers a hit.
 - **Modular Design**: The game's logic is divided into modules (e.g., game logic, UI, controller).
+- **MVC Model**: This project represented my initial foray into utilizing the Model-View-Controller (MVC) architectural pattern. The MVC model significantly contributed to a well-organized codebase, where the game's data (Model), user interface (View), and the control flow (Controller) were distinctly separated. This separation not only simplified the debugging process but also allowed for more manageable updates and scalability of the application.
 
 ## Usage
 
